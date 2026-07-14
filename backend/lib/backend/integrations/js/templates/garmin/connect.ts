@@ -3,13 +3,13 @@ import type { State } from './sync.ts';
 
 const { GarminConnect } = gc;
 
-export async function connect(ctx: { inputs: { username: string; password: string } }, io: {
+export async function connect(payload: { username: string; password: string }, io: {
   progress: (data: unknown) => void;
   requestInput: (schema: unknown) => Promise<{ code: string }>;
 }): Promise<State> {
   const GCClient = new GarminConnect({
-    username: ctx.inputs.username,
-    password: ctx.inputs.password,
+    username: payload.username,
+    password: payload.password,
     mfaHandler: async () => await io.requestInput("mfa").then((input) => input.code),
   });
 

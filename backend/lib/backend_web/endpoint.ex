@@ -59,4 +59,9 @@ defmodule BackendWeb.Endpoint do
 
   plug CORSPlug
   plug BackendWeb.Router
+
+  socket "/socket/integration", BackendWeb.IntegrationSocket,
+    websocket: true,
+    longpoll: false,
+    auth_token: true
 end
