@@ -135,7 +135,16 @@ export class RemoteExecutor {
   #registerChannelHandlers() {
     this.channel.on("request_input", payload => {
       const callback = this.#inputHandlers.get(payload.schema);
-      callback?.(payload);
+      
+      if (!callback) {
+        this.#finishWithError(
+          new Error(`Inputs request schema '${payload.schema}' is unhandled!`)
+        );
+
+        return;
+      }
+
+      callback(payload);
     });
 
     this.channel.on("done", response => {

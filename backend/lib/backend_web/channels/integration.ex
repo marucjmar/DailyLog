@@ -11,6 +11,18 @@ defmodule BackendWeb.API.IntegrationChannel do
   end
 
   @impl true
+  def terminate(_reason, socket) do
+    socket.assigns.executions
+    |> Map.values()
+    |> Enum.each(fn %{port: port, tmp_files: tmp_files} ->
+      safe_close_port(port)
+      CodeRunner.cleanup(tmp_files)
+    end)
+
+    :ok
+  end
+
+  @impl true
   def handle_in("execute", %{"id" => id, "function" => fn_name, "payload" => payload}, socket) do
     path =
       "/Users/marcin/development/daily-log/backend/lib/backend/integrations/js/templates/garmin/connect.ts"
@@ -50,7 +62,7 @@ defmodule BackendWeb.API.IntegrationChannel do
       ) do
     case get_execution(socket, execution_id) do
       %{port: port} ->
-        Port.close(port)
+        safe_close_port(port)
 
         {:reply, {:ok, %{}}, socket}
 
@@ -130,4 +142,12 @@ defmodule BackendWeb.API.IntegrationChannel do
         |> assign(:ports, Map.delete(socket.assigns.ports, port))
     end
   end
+
+  defp safe_close_port(port) do
+    if Port.info(port) != nil do
+        Port.close(port)
+      end
+    rescue
+      ArgumentError -> :ok
+    end
 end
