@@ -2,8 +2,7 @@ export type Trigger = "daily_sync" | "sync_all";
 
 export type TState = Record<string, string | number>;
 
-export type Ctx<I, State = TState> = {
-  inputs: I;
+export type Ctx<State = TState> = {
   trigger: Trigger;
   state: State;
 }

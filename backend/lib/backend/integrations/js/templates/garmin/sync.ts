@@ -1,11 +1,10 @@
 import os from 'node:os';
 import fs from 'node:fs';
 
-import gc, { IGarminTokens } from 'npm:@flow-js/garmin-connect@1.6.17';
+import gc, { IGarminTokens } from 'npm:garmin-connect-nexxt@1.6.19';
 import dayjs from 'npm:dayjs@1.11.21';
 
 import type { ActivityEvent, Ctx, SyncResult } from '../../template.ts';
-import type { Inputs } from './manifest.ts';
 
 const { GarminConnect } = gc;
 
@@ -15,12 +14,11 @@ const today = dayjs();
 const isToday = (time: string) => dayjs(time).isSame(today, 'day');
 
 // Types
-type State = { cursor: number; session: IGarminTokens };
-type Context = Ctx<Inputs, State>;
+export type State = { cursor?: number; session: IGarminTokens };
+type Context = Ctx<State>;
 
 export async function sync(ctx: Context): Promise<SyncResult> {
     const GCClient = new GarminConnect();
-
     GCClient.loadToken(ctx.state.session.oauth1, ctx.state.session.oauth2);
 
     let activitiesCount = 3;
@@ -79,6 +77,7 @@ export async function sync(ctx: Context): Promise<SyncResult> {
       continuation = {
         state: {
           ...ctx.state,
+          session: GCClient.exportToken(),
           cursor: start + activitiesCount,
         },
         schedule: {

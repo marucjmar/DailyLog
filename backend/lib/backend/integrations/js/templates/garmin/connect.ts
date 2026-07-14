@@ -1,11 +1,12 @@
-import gc, { IGarminTokens } from 'npm:garmin-connect-nexxt@1.6.19';
+import gc from 'npm:garmin-connect-nexxt@1.6.19';
+import { State } from './sync.ts';
 
 const { GarminConnect } = gc;
 
-export async function connect(ctx: { inputs: Record<string, unknown> }, io: {
+export async function connect(ctx: { inputs: { username: string; password: string } }, io: {
   progress: (data: unknown) => void;
   requestInput: (schema: unknown) => Promise<{ code: string }>;
-}): Promise<{ session: IGarminTokens }> {
+}): Promise<State> {
   const GCClient = new GarminConnect({
     username: ctx.inputs.username,
     password: ctx.inputs.password,
