@@ -55,7 +55,7 @@ defmodule Backend.Integrations do
 
   """
   def create_integration(attrs) do
-     alias Ecto.Multi
+    alias Ecto.Multi
 
     Multi.new()
     |> Multi.insert(:integration, Integration.changeset(%Integration{}, attrs))
@@ -112,25 +112,27 @@ defmodule Backend.Integrations do
     Integration.changeset(integration, attrs)
   end
 
-  def sync(%Integration{} = integration, ctx = %{ trigger: "daily_sync" }) do
+  def sync(%Integration{} = integration, ctx = %{trigger: "daily_sync"}) do
     started_at = System.monotonic_time(:millisecond)
 
-    ctxi = Map.merge(ctx, %{
-      inputs: integration.inputs,
-      date: Date.to_iso8601(integration.next_sync_at),
-    })
+    ctxi =
+      Map.merge(ctx, %{
+        inputs: integration.inputs,
+        date: Date.to_iso8601(integration.next_sync_at)
+      })
 
     # zamienić na Coderunner z dockera
-    # {result, events} = case NodeJS.call({integration.compiled_path, "sync"}, [ctxi]) do
-    #   {:ok, output} ->
-    #      case Jason.decode(output) do
-    #       {:ok, data} -> {:ok, data}
-    #       {:error, error} -> {:error, error.data}
-    #     end
+    {result, events} =
+      case NodeJS.call({integration.compiled_path, "sync"}, [ctxi]) do
+        {:ok, output} ->
+          case Jason.decode(output) do
+            {:ok, data} -> {:ok, data}
+            {:error, error} -> {:error, error.data}
+          end
 
-    #   {:error, error} ->
-    #     {:error, error}
-    # end
+        {:error, error} ->
+          {:error, error}
+      end
 
     duration_ms = System.monotonic_time(:millisecond) - started_at
 
@@ -146,7 +148,7 @@ defmodule Backend.Integrations do
           connection_id: integration.id,
           status: :ok,
           duration_ms: duration_ms,
-          events_count: length(events),
+          events_count: length(events)
         })
         |> Repo.insert!()
 
@@ -191,7 +193,6 @@ defmodule Backend.Integrations do
 
   #   Jason.decode!(json)
   # end
-
 
   @doc """
   Returns the list of integration_templates.

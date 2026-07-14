@@ -7,9 +7,90 @@
 # General application configuration
 import Config
 
+config :ash_oban, pro?: false
+
+config :backend, Oban,
+  engine: Oban.Engines.Basic,
+  notifier: Oban.Notifiers.Postgres,
+  queues: [default: 10],
+  repo: Backend.Repo,
+  plugins: [{Oban.Plugins.Cron, []}]
+
+config :backend, Backend.Repo,
+  migration_primary_key: [type: :binary_id],
+  migration_foreign_key: [type: :binary_id]
+
+config :mime,
+  extensions: %{"json" => "application/vnd.api+json"},
+  types: %{"application/vnd.api+json" => ["json"]}
+
+config :ash_json_api,
+  show_public_calculations_when_loaded?: false,
+  authorize_update_destroy_with_error?: true
+
+# These enable behaviors that will become the default in the next major
+# version of Ash. Setting them now opts your application into the new
+# behavior and ensures a seamless upgrade. See the backwards compatibility
+# guide for an explanation of each setting:
+# https://hexdocs.pm/ash/backwards-compatibility-config.html
+config :ash,
+  allow_forbidden_field_for_relationships_by_default?: true,
+  include_embedded_source_by_default?: false,
+  show_keysets_for_all_actions?: false,
+  default_page_type: :keyset,
+  policies: [no_filter_static_forbidden_reads?: false],
+  keep_read_action_loads_when_loading?: false,
+  default_actions_require_atomic?: true,
+  read_action_after_action_hooks_in_order?: true,
+  bulk_actions_default_to_errors?: true,
+  transaction_rollback_on_error?: true,
+  redact_sensitive_values_in_errors?: true,
+  known_types: [AshPostgres.Timestamptz, AshPostgres.TimestamptzUsec]
+
+config :spark,
+  formatter: [
+    remove_parens?: true,
+    "Ash.Resource": [
+      section_order: [
+        :admin,
+        :authentication,
+        :token,
+        :user_identity,
+        :postgres,
+        :json_api,
+        :resource,
+        :code_interface,
+        :actions,
+        :policies,
+        :pub_sub,
+        :preparations,
+        :changes,
+        :validations,
+        :multitenancy,
+        :attributes,
+        :relationships,
+        :calculations,
+        :aggregates,
+        :identities
+      ]
+    ],
+    "Ash.Domain": [
+      section_order: [
+        :admin,
+        :json_api,
+        :resources,
+        :policies,
+        :authorization,
+        :domain,
+        :execution
+      ]
+    ]
+  ]
+
 config :backend,
   ecto_repos: [Backend.Repo],
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime],
+  ash_domains: [Backend.Accounts]
 
 # Configure the endpoint
 config :backend, BackendWeb.Endpoint,

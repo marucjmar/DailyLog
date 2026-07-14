@@ -22,12 +22,26 @@ defmodule CodeRunner do
     home = System.user_home!()
 
     args = [
-      "run", "--rm",
-      "--memory", "512m", "--memory-swap", "512m", "--cpus", "1", "--pids-limit", "64",
-      "-v", "#{path}:/app/code.ts",
-      "-v", "#{home}/.deno:/deno-dir",
+      "run",
+      "--rm",
+      "--memory",
+      "512m",
+      "--memory-swap",
+      "512m",
+      "--cpus",
+      "1",
+      "--pids-limit",
+      "64",
+      "-v",
+      "#{path}:/app/code.ts",
+      "-v",
+      "#{home}/.deno:/deno-dir",
       @deno_image,
-      "deno", "bundle", "--minify", "--platform=browser", "/app/code.ts"
+      "deno",
+      "bundle",
+      "--minify",
+      "--platform=browser",
+      "/app/code.ts"
     ]
 
     case System.cmd("docker", args, stderr_to_stdout: false) do
@@ -71,13 +85,28 @@ defmodule CodeRunner do
     home = System.user_home!()
 
     args = [
-      "run", "-i", "--rm",
-      "--memory", "512m", "--memory-swap", "512m", "--cpus", "1", "--pids-limit", "64",
-      "-v", "#{file}:/app/code.ts",
-      "-v", "#{wrapper_path}:/app/code-wrap.ts",
-      "-v", "#{home}/.deno:/deno-dir",
+      "run",
+      "-i",
+      "--rm",
+      "--memory",
+      "512m",
+      "--memory-swap",
+      "512m",
+      "--cpus",
+      "1",
+      "--pids-limit",
+      "64",
+      "-v",
+      "#{file}:/app/code.ts",
+      "-v",
+      "#{wrapper_path}:/app/code-wrap.ts",
+      "-v",
+      "#{home}/.deno:/deno-dir",
       @deno_image,
-      "deno", "run", "-A", "/app/code-wrap.ts"
+      "deno",
+      "run",
+      "-A",
+      "/app/code-wrap.ts"
     ]
 
     port =

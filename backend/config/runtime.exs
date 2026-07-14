@@ -29,9 +29,9 @@ config :backend, Oban,
   ],
   plugins: [
     {Oban.Plugins.Cron,
-      crontab: [
-        {"* * * * *", Backend.Integrations.IntegrationDispatcherWorker}
-      ]}
+     crontab: [
+       {"* * * * *", Backend.Integrations.IntegrationDispatcherWorker}
+     ]}
   ]
 
 config :backend, BackendWeb.Endpoint,
@@ -81,6 +81,11 @@ if config_env() == :prod do
       ip: {0, 0, 0, 0, 0, 0, 0, 0}
     ],
     secret_key_base: secret_key_base
+
+  config :backend,
+    token_signing_secret:
+      System.get_env("TOKEN_SIGNING_SECRET") ||
+        raise("Missing environment variable `TOKEN_SIGNING_SECRET`!")
 
   # ## SSL Support
   #

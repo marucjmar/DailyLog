@@ -6,17 +6,24 @@ defmodule Backend.Integrations.Integration do
   alias Backend.Integrations.SyncLog
 
   schema "integrations" do
-    belongs_to :user,     Accounts.User
-    belongs_to :template, IntegrationTemplate   # nil dla custom
+    belongs_to :user, Accounts.User
+    # nil dla custom
+    belongs_to :template, IntegrationTemplate
 
-    field :source_code,   :string               # nil dla builtin
-    field :source_code_dependencies,   :map               # nil dla builtin
-    field :compiled_path, :string               # nil dopóki pending
-    field :inputs,        :map                  # zaszyfrowane — Cloak.Ecto.Map
-    field :status,        Ecto.Enum,
+    # nil dla builtin
+    field :source_code, :string
+    # nil dla builtin
+    field :source_code_dependencies, :map
+    # nil dopóki pending
+    field :compiled_path, :string
+    # zaszyfrowane — Cloak.Ecto.Map
+    field :inputs, :map
+
+    field :status, Ecto.Enum,
       values: [:pending, :compiling, :ready, :error, :paused],
       default: :pending
-    field :last_error,    :string
+
+    field :last_error, :string
     field :next_sync_at, :utc_datetime
     field :last_synced_at, :utc_datetime
     field :enabled, :boolean
@@ -29,7 +36,17 @@ defmodule Backend.Integrations.Integration do
   @doc false
   def changeset(conn, attrs) do
     conn
-    |> cast(attrs, [:template_id, :source_code, :inputs, :source_code_dependencies, :sync_interval_minutes, :enabled, :last_synced_at, :next_sync_at, :compiled_path])
+    |> cast(attrs, [
+      :template_id,
+      :source_code,
+      :inputs,
+      :source_code_dependencies,
+      :sync_interval_minutes,
+      :enabled,
+      :last_synced_at,
+      :next_sync_at,
+      :compiled_path
+    ])
     |> validate_required([:inputs])
     |> validate_source_xor_template()
     |> foreign_key_constraint(:user_id)
@@ -40,8 +57,10 @@ defmodule Backend.Integrations.Integration do
     case {get_field(cs, :template_id), get_field(cs, :source_code)} do
       {nil, nil} ->
         add_error(cs, :base, "template_id or source_code is required")
+
       {t, s} when not is_nil(t) and not is_nil(s) ->
         add_error(cs, :base, "cannot set both template_id and source_code")
+
       _ ->
         cs
     end

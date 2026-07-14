@@ -8,7 +8,15 @@ defmodule Backend.IntegrationsTest do
 
     import Backend.IntegrationsFixtures
 
-    @invalid_attrs %{enabled: nil, name: nil, config: nil, user_id: nil, template_id: nil, custom_code: nil, last_sync_at: nil}
+    @invalid_attrs %{
+      enabled: nil,
+      name: nil,
+      config: nil,
+      user_id: nil,
+      template_id: nil,
+      custom_code: nil,
+      last_sync_at: nil
+    }
 
     test "list_integrations/0 returns all integrations" do
       integration = integration_fixture()
@@ -21,7 +29,15 @@ defmodule Backend.IntegrationsTest do
     end
 
     test "create_integration/1 with valid data creates a integration" do
-      valid_attrs = %{enabled: true, name: "some name", config: %{}, user_id: 42, template_id: "some template_id", custom_code: "some custom_code", last_sync_at: ~U[2026-06-06 21:36:00Z]}
+      valid_attrs = %{
+        enabled: true,
+        name: "some name",
+        config: %{},
+        user_id: 42,
+        template_id: "some template_id",
+        custom_code: "some custom_code",
+        last_sync_at: ~U[2026-06-06 21:36:00Z]
+      }
 
       assert {:ok, %Integration{} = integration} = Integrations.create_integration(valid_attrs)
       assert integration.enabled == true
@@ -39,9 +55,20 @@ defmodule Backend.IntegrationsTest do
 
     test "update_integration/2 with valid data updates the integration" do
       integration = integration_fixture()
-      update_attrs = %{enabled: false, name: "some updated name", config: %{}, user_id: 43, template_id: "some updated template_id", custom_code: "some updated custom_code", last_sync_at: ~U[2026-06-07 21:36:00Z]}
 
-      assert {:ok, %Integration{} = integration} = Integrations.update_integration(integration, update_attrs)
+      update_attrs = %{
+        enabled: false,
+        name: "some updated name",
+        config: %{},
+        user_id: 43,
+        template_id: "some updated template_id",
+        custom_code: "some updated custom_code",
+        last_sync_at: ~U[2026-06-07 21:36:00Z]
+      }
+
+      assert {:ok, %Integration{} = integration} =
+               Integrations.update_integration(integration, update_attrs)
+
       assert integration.enabled == false
       assert integration.name == "some updated name"
       assert integration.config == %{}
@@ -53,7 +80,10 @@ defmodule Backend.IntegrationsTest do
 
     test "update_integration/2 with invalid data returns error changeset" do
       integration = integration_fixture()
-      assert {:error, %Ecto.Changeset{}} = Integrations.update_integration(integration, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Integrations.update_integration(integration, @invalid_attrs)
+
       assert integration == Integrations.get_integration!(integration.id)
     end
 
@@ -74,7 +104,15 @@ defmodule Backend.IntegrationsTest do
 
     import Backend.IntegrationsFixtures
 
-    @invalid_attrs %{name: nil, version: nil, description: nil, slug: nil, input_schema: nil, compiled_path: nil, compiled_at: nil}
+    @invalid_attrs %{
+      name: nil,
+      version: nil,
+      description: nil,
+      slug: nil,
+      input_schema: nil,
+      compiled_path: nil,
+      compiled_at: nil
+    }
 
     test "list_integration_templates/0 returns all integration_templates" do
       integration_template = integration_template_fixture()
@@ -83,13 +121,25 @@ defmodule Backend.IntegrationsTest do
 
     test "get_integration_template!/1 returns the integration_template with given id" do
       integration_template = integration_template_fixture()
-      assert Integrations.get_integration_template!(integration_template.id) == integration_template
+
+      assert Integrations.get_integration_template!(integration_template.id) ==
+               integration_template
     end
 
     test "create_integration_template/1 with valid data creates a integration_template" do
-      valid_attrs = %{name: "some name", version: "some version", description: "some description", slug: "some slug", input_schema: %{}, compiled_path: "some compiled_path", compiled_at: ~U[2026-06-14 19:25:00Z]}
+      valid_attrs = %{
+        name: "some name",
+        version: "some version",
+        description: "some description",
+        slug: "some slug",
+        input_schema: %{},
+        compiled_path: "some compiled_path",
+        compiled_at: ~U[2026-06-14 19:25:00Z]
+      }
 
-      assert {:ok, %IntegrationTemplate{} = integration_template} = Integrations.create_integration_template(valid_attrs)
+      assert {:ok, %IntegrationTemplate{} = integration_template} =
+               Integrations.create_integration_template(valid_attrs)
+
       assert integration_template.name == "some name"
       assert integration_template.version == "some version"
       assert integration_template.description == "some description"
@@ -100,14 +150,26 @@ defmodule Backend.IntegrationsTest do
     end
 
     test "create_integration_template/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Integrations.create_integration_template(@invalid_attrs)
+      assert {:error, %Ecto.Changeset{}} =
+               Integrations.create_integration_template(@invalid_attrs)
     end
 
     test "update_integration_template/2 with valid data updates the integration_template" do
       integration_template = integration_template_fixture()
-      update_attrs = %{name: "some updated name", version: "some updated version", description: "some updated description", slug: "some updated slug", input_schema: %{}, compiled_path: "some updated compiled_path", compiled_at: ~U[2026-06-15 19:25:00Z]}
 
-      assert {:ok, %IntegrationTemplate{} = integration_template} = Integrations.update_integration_template(integration_template, update_attrs)
+      update_attrs = %{
+        name: "some updated name",
+        version: "some updated version",
+        description: "some updated description",
+        slug: "some updated slug",
+        input_schema: %{},
+        compiled_path: "some updated compiled_path",
+        compiled_at: ~U[2026-06-15 19:25:00Z]
+      }
+
+      assert {:ok, %IntegrationTemplate{} = integration_template} =
+               Integrations.update_integration_template(integration_template, update_attrs)
+
       assert integration_template.name == "some updated name"
       assert integration_template.version == "some updated version"
       assert integration_template.description == "some updated description"
@@ -119,14 +181,23 @@ defmodule Backend.IntegrationsTest do
 
     test "update_integration_template/2 with invalid data returns error changeset" do
       integration_template = integration_template_fixture()
-      assert {:error, %Ecto.Changeset{}} = Integrations.update_integration_template(integration_template, @invalid_attrs)
-      assert integration_template == Integrations.get_integration_template!(integration_template.id)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Integrations.update_integration_template(integration_template, @invalid_attrs)
+
+      assert integration_template ==
+               Integrations.get_integration_template!(integration_template.id)
     end
 
     test "delete_integration_template/1 deletes the integration_template" do
       integration_template = integration_template_fixture()
-      assert {:ok, %IntegrationTemplate{}} = Integrations.delete_integration_template(integration_template)
-      assert_raise Ecto.NoResultsError, fn -> Integrations.get_integration_template!(integration_template.id) end
+
+      assert {:ok, %IntegrationTemplate{}} =
+               Integrations.delete_integration_template(integration_template)
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Integrations.get_integration_template!(integration_template.id)
+      end
     end
 
     test "change_integration_template/1 returns a integration_template changeset" do
@@ -140,7 +211,14 @@ defmodule Backend.IntegrationsTest do
 
     import Backend.IntegrationsFixtures
 
-    @invalid_attrs %{status: nil, source_code: nil, compiled_path: nil, inputs: nil, last_error: nil, last_synced_at: nil}
+    @invalid_attrs %{
+      status: nil,
+      source_code: nil,
+      compiled_path: nil,
+      inputs: nil,
+      last_error: nil,
+      last_synced_at: nil
+    }
 
     test "list_connections/0 returns all connections" do
       connection = connection_fixture()
@@ -153,7 +231,14 @@ defmodule Backend.IntegrationsTest do
     end
 
     test "create_connection/1 with valid data creates a connection" do
-      valid_attrs = %{status: "some status", source_code: "some source_code", compiled_path: "some compiled_path", inputs: %{}, last_error: "some last_error", last_synced_at: ~U[2026-06-14 19:26:00Z]}
+      valid_attrs = %{
+        status: "some status",
+        source_code: "some source_code",
+        compiled_path: "some compiled_path",
+        inputs: %{},
+        last_error: "some last_error",
+        last_synced_at: ~U[2026-06-14 19:26:00Z]
+      }
 
       assert {:ok, %Connection{} = connection} = Integrations.create_connection(valid_attrs)
       assert connection.status == "some status"
@@ -170,9 +255,19 @@ defmodule Backend.IntegrationsTest do
 
     test "update_connection/2 with valid data updates the connection" do
       connection = connection_fixture()
-      update_attrs = %{status: "some updated status", source_code: "some updated source_code", compiled_path: "some updated compiled_path", inputs: %{}, last_error: "some updated last_error", last_synced_at: ~U[2026-06-15 19:26:00Z]}
 
-      assert {:ok, %Connection{} = connection} = Integrations.update_connection(connection, update_attrs)
+      update_attrs = %{
+        status: "some updated status",
+        source_code: "some updated source_code",
+        compiled_path: "some updated compiled_path",
+        inputs: %{},
+        last_error: "some updated last_error",
+        last_synced_at: ~U[2026-06-15 19:26:00Z]
+      }
+
+      assert {:ok, %Connection{} = connection} =
+               Integrations.update_connection(connection, update_attrs)
+
       assert connection.status == "some updated status"
       assert connection.source_code == "some updated source_code"
       assert connection.compiled_path == "some updated compiled_path"
@@ -183,7 +278,10 @@ defmodule Backend.IntegrationsTest do
 
     test "update_connection/2 with invalid data returns error changeset" do
       connection = connection_fixture()
-      assert {:error, %Ecto.Changeset{}} = Integrations.update_connection(connection, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Integrations.update_connection(connection, @invalid_attrs)
+
       assert connection == Integrations.get_connection!(connection.id)
     end
 
@@ -204,7 +302,14 @@ defmodule Backend.IntegrationsTest do
 
     import Backend.IntegrationsFixtures
 
-    @invalid_attrs %{status: nil, source_code: nil, compiled_path: nil, inputs: nil, last_error: nil, last_synced_at: nil}
+    @invalid_attrs %{
+      status: nil,
+      source_code: nil,
+      compiled_path: nil,
+      inputs: nil,
+      last_error: nil,
+      last_synced_at: nil
+    }
 
     test "list_integrations/0 returns all integrations" do
       integration = integration_fixture()
@@ -217,7 +322,14 @@ defmodule Backend.IntegrationsTest do
     end
 
     test "create_integration/1 with valid data creates a integration" do
-      valid_attrs = %{status: "some status", source_code: "some source_code", compiled_path: "some compiled_path", inputs: %{}, last_error: "some last_error", last_synced_at: ~U[2026-06-14 19:26:00Z]}
+      valid_attrs = %{
+        status: "some status",
+        source_code: "some source_code",
+        compiled_path: "some compiled_path",
+        inputs: %{},
+        last_error: "some last_error",
+        last_synced_at: ~U[2026-06-14 19:26:00Z]
+      }
 
       assert {:ok, %Integration{} = integration} = Integrations.create_integration(valid_attrs)
       assert integration.status == "some status"
@@ -234,9 +346,19 @@ defmodule Backend.IntegrationsTest do
 
     test "update_integration/2 with valid data updates the integration" do
       integration = integration_fixture()
-      update_attrs = %{status: "some updated status", source_code: "some updated source_code", compiled_path: "some updated compiled_path", inputs: %{}, last_error: "some updated last_error", last_synced_at: ~U[2026-06-15 19:26:00Z]}
 
-      assert {:ok, %Integration{} = integration} = Integrations.update_integration(integration, update_attrs)
+      update_attrs = %{
+        status: "some updated status",
+        source_code: "some updated source_code",
+        compiled_path: "some updated compiled_path",
+        inputs: %{},
+        last_error: "some updated last_error",
+        last_synced_at: ~U[2026-06-15 19:26:00Z]
+      }
+
+      assert {:ok, %Integration{} = integration} =
+               Integrations.update_integration(integration, update_attrs)
+
       assert integration.status == "some updated status"
       assert integration.source_code == "some updated source_code"
       assert integration.compiled_path == "some updated compiled_path"
@@ -247,7 +369,10 @@ defmodule Backend.IntegrationsTest do
 
     test "update_integration/2 with invalid data returns error changeset" do
       integration = integration_fixture()
-      assert {:error, %Ecto.Changeset{}} = Integrations.update_integration(integration, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Integrations.update_integration(integration, @invalid_attrs)
+
       assert integration == Integrations.get_integration!(integration.id)
     end
 
@@ -281,7 +406,12 @@ defmodule Backend.IntegrationsTest do
     end
 
     test "create_sync_log/1 with valid data creates a sync_log" do
-      valid_attrs = %{error: "some error", status: "some status", duration_ms: 42, events_count: 42}
+      valid_attrs = %{
+        error: "some error",
+        status: "some status",
+        duration_ms: 42,
+        events_count: 42
+      }
 
       assert {:ok, %SyncLog{} = sync_log} = Integrations.create_sync_log(valid_attrs)
       assert sync_log.error == "some error"
@@ -296,7 +426,13 @@ defmodule Backend.IntegrationsTest do
 
     test "update_sync_log/2 with valid data updates the sync_log" do
       sync_log = sync_log_fixture()
-      update_attrs = %{error: "some updated error", status: "some updated status", duration_ms: 43, events_count: 43}
+
+      update_attrs = %{
+        error: "some updated error",
+        status: "some updated status",
+        duration_ms: 43,
+        events_count: 43
+      }
 
       assert {:ok, %SyncLog{} = sync_log} = Integrations.update_sync_log(sync_log, update_attrs)
       assert sync_log.error == "some updated error"

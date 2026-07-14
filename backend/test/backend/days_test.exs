@@ -8,7 +8,16 @@ defmodule Backend.DaysTest do
 
     import Backend.DaysFixtures
 
-    @invalid_attrs %{date: nil, user_id: nil, events_count: nil, photos_count: nil, activities_count: nil, tasks_count: nil, timeline: nil, summary: nil}
+    @invalid_attrs %{
+      date: nil,
+      user_id: nil,
+      events_count: nil,
+      photos_count: nil,
+      activities_count: nil,
+      tasks_count: nil,
+      timeline: nil,
+      summary: nil
+    }
 
     test "list_days/0 returns all days" do
       day = day_fixture()
@@ -21,7 +30,16 @@ defmodule Backend.DaysTest do
     end
 
     test "create_day/1 with valid data creates a day" do
-      valid_attrs = %{date: ~D[2026-06-06], user_id: 42, events_count: 42, photos_count: 42, activities_count: 42, tasks_count: 42, timeline: %{}, summary: "some summary"}
+      valid_attrs = %{
+        date: ~D[2026-06-06],
+        user_id: 42,
+        events_count: 42,
+        photos_count: 42,
+        activities_count: 42,
+        tasks_count: 42,
+        timeline: %{},
+        summary: "some summary"
+      }
 
       assert {:ok, %Day{} = day} = Days.create_day(valid_attrs)
       assert day.date == ~D[2026-06-06]
@@ -40,7 +58,17 @@ defmodule Backend.DaysTest do
 
     test "update_day/2 with valid data updates the day" do
       day = day_fixture()
-      update_attrs = %{date: ~D[2026-06-07], user_id: 43, events_count: 43, photos_count: 43, activities_count: 43, tasks_count: 43, timeline: %{}, summary: "some updated summary"}
+
+      update_attrs = %{
+        date: ~D[2026-06-07],
+        user_id: 43,
+        events_count: 43,
+        photos_count: 43,
+        activities_count: 43,
+        tasks_count: 43,
+        timeline: %{},
+        summary: "some updated summary"
+      }
 
       assert {:ok, %Day{} = day} = Days.update_day(day, update_attrs)
       assert day.date == ~D[2026-06-07]

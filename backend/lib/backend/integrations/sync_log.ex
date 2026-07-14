@@ -5,12 +5,14 @@ defmodule Backend.Integrations.SyncLog do
   schema "sync_logs" do
     belongs_to :integration, Connection
 
-    field :status,       Ecto.Enum, values: [:ok, :error, :timeout]
-    field :duration_ms,  :integer
+    field :status, Ecto.Enum, values: [:ok, :error, :timeout]
+    field :duration_ms, :integer
     field :events_count, :integer
-    field :error,        :string     # skrócony output jeśli failed
+    # skrócony output jeśli failed
+    field :error, :string
 
-    timestamps(updated_at: false)    # insert only — logi nie są edytowane
+    # insert only — logi nie są edytowane
+    timestamps(updated_at: false)
   end
 
   @doc false

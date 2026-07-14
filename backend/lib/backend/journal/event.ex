@@ -6,7 +6,7 @@ defmodule Backend.Journal.Event do
     "photo",
     "activity",
     "task",
-    "note",
+    "note"
   ]
 
   schema "events" do

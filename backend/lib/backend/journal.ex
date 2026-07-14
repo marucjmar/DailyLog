@@ -62,7 +62,10 @@ defmodule Backend.Journal do
       Ecto.Multi.insert(
         multi,
         :"event_#{idx}",
-        Event.changeset(%Event{}, Map.put(attrs, "timestamp", DateTime.from_unix!(attrs["timestamp"], :millisecond))),
+        Event.changeset(
+          %Event{},
+          Map.put(attrs, "timestamp", DateTime.from_unix!(attrs["timestamp"], :millisecond))
+        ),
         on_conflict: :nothing
       )
     end)

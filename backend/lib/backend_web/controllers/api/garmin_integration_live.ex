@@ -20,40 +20,40 @@ defmodule BackendWeb.API.GarminIntegrationLive do
   def render(assigns) do
     ~H"""
     <div>
-    <.form for={@form} id="my-form" phx-change="validate" phx-submit="save">
-      <div>
-        <.input type="text" field={@form[:username]} />
-      </div>
-      <div>
-        <.input type="password" field={@form[:password]} />
-      </div>
+      <.form for={@form} id="my-form" phx-change="validate" phx-submit="save">
+        <div>
+          <.input type="text" field={@form[:username]} />
+        </div>
+        <div>
+          <.input type="password" field={@form[:password]} />
+        </div>
 
-      <button>Save</button>
-    </.form>
+        <button>Save</button>
+      </.form>
     </div>
 
-      <%= if @waiting_for_input do %>
-        <div>
-          <p>Program oczekuje na dodatkowe dane.</p>
+    <%= if @waiting_for_input do %>
+      <div>
+        <p>Program oczekuje na dodatkowe dane.</p>
 
-          <.form for={%{}} as={:runner_input} phx-submit="send_input">
-            <input
-              type="text"
-              name="runner_input[value]"
-              placeholder="Wprowadź dane"
-            />
+        <.form for={%{}} as={:runner_input} phx-submit="send_input">
+          <input
+            type="text"
+            name="runner_input[value]"
+            placeholder="Wprowadź dane"
+          />
 
-            <button type="submit">Wyślij</button>
-          </.form>
-        </div>
-      <% end %>
+          <button type="submit">Wyślij</button>
+        </.form>
+      </div>
+    <% end %>
 
-      <%= if @success do %>
-        <div>
-          <p>Program zakończył się sukcesem.</p>
-          <pre><%= inspect(@result) %></pre>
-        </div>
-      <% end %>
+    <%= if @success do %>
+      <div>
+        <p>Program zakończył się sukcesem.</p>
+        <pre><%= inspect(@result) %></pre>
+      </div>
+    <% end %>
     """
   end
 
@@ -73,27 +73,26 @@ defmodule BackendWeb.API.GarminIntegrationLive do
     {:noreply, assign(socket, form: to_form(changeset, action: :validate))}
   end
 
-
   def handle_event("save", %{"user" => params}, socket) do
     case CodeRunner.run_file(
-          "/Users/marcin/development/daily-log/backend/lib/backend/integrations/js/templates/garmin/connect.ts",
-          %{inputs: params},
-          "connect"
-        ) do
+           "/Users/marcin/development/daily-log/backend/lib/backend/integrations/js/templates/garmin/connect.ts",
+           %{inputs: params},
+           "connect"
+         ) do
       {:ok, %{port: port}} ->
         {:noreply,
-        socket
-        |> assign(:port, port)
-        |> assign(:running, true)
-        |> assign(:waiting_for_input, false)
-        |> assign(:result, nil)
-        |> assign(:error, nil)}
+         socket
+         |> assign(:port, port)
+         |> assign(:running, true)
+         |> assign(:waiting_for_input, false)
+         |> assign(:result, nil)
+         |> assign(:error, nil)}
 
       {:error, reason} ->
         {:noreply,
-        socket
-        |> assign(:running, false)
-        |> assign(:error, reason)}
+         socket
+         |> assign(:running, false)
+         |> assign(:error, reason)}
     end
   end
 
@@ -103,15 +102,13 @@ defmodule BackendWeb.API.GarminIntegrationLive do
         %{assigns: %{port: port}} = socket
       )
       when not is_nil(port) do
-
     CodeRunner.submit_input(port, "mfa", %{code: runner_input})
 
     {:noreply,
-    socket
-    |> assign(:waiting_for_input, false)
-    |> assign(:request_input, nil)}
+     socket
+     |> assign(:waiting_for_input, false)
+     |> assign(:request_input, nil)}
   end
-
 
   attr :type, :string, default: "text"
   attr :field, Phoenix.HTML.FormField
@@ -121,14 +118,14 @@ defmodule BackendWeb.API.GarminIntegrationLive do
     ~H"""
     <input type="text" name={@field.name} id={@field.id} value={@field.value} />
     <p :for={msg <- @field.errors} :if={used_input?(@field)} class="text-red-600 text-sm">
-      <%= translate_error(msg) %>
+      {translate_error(msg)}
     </p>
     """
   end
 
   def error(assigns) do
     ~H"""
-    <p class="text-red-600 text-sm"><%= render_slot(@inner_block) || @children %></p>
+    <p class="text-red-600 text-sm">{render_slot(@inner_block) || @children}</p>
     """
   end
 

@@ -23,7 +23,10 @@ defmodule Backend.Repo.Migrations.CreateIntegrations do
     create index(:integrations, [:user_id])
     create index(:integrations, [:template_id])
 
-    create constraint(:integrations, :source_xor_template, check: "(template_id IS NULL) != (source_code IS NULL)")
+    create constraint(:integrations, :source_xor_template,
+             check: "(template_id IS NULL) != (source_code IS NULL)"
+           )
+
     create index(:integrations, [:status])
     create index(:integrations, [:user_id, :status])
     create index(:integrations, [:user_id, :template_id])

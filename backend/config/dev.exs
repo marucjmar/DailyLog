@@ -1,4 +1,5 @@
 import Config
+config :ash, policies: [show_policy_breakdowns?: true]
 
 # Configure your database
 config :backend, Backend.Repo,
@@ -68,7 +69,7 @@ config :backend, BackendWeb.Endpoint,
   ]
 
 # Enable dev routes for dashboard and mailbox
-config :backend, dev_routes: true
+config :backend, dev_routes: true, token_signing_secret: "rrYwP1j532TO1N2QFuj1282dCrhujA17"
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :default_formatter, format: "[$level] $message\n"

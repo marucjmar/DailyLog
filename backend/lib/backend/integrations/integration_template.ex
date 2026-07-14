@@ -5,13 +5,16 @@ defmodule Backend.Integrations.IntegrationTemplate do
   alias Backend.Integrations.Integration
 
   schema "integration_templates" do
-    field :slug,          :string        # "garmin", "immich"
-    field :name,          :string
-    field :description,   :string
-    field :input_schema,  :map           # zdenormalizowany manifest.inputs
-    field :version,       :string
-    field :compiled_path, :string        # nil dopóki nikt nie użył
-    field :compiled_at,   :utc_datetime
+    # "garmin", "immich"
+    field :slug, :string
+    field :name, :string
+    field :description, :string
+    # zdenormalizowany manifest.inputs
+    field :input_schema, :map
+    field :version, :string
+    # nil dopóki nikt nie użył
+    field :compiled_path, :string
+    field :compiled_at, :utc_datetime
 
     has_many :integrations, Integration
     timestamps()

@@ -10,13 +10,18 @@ defmodule Backend.Application do
     children = [
       BackendWeb.Telemetry,
       Backend.Repo,
-      {Oban, Application.fetch_env!(:backend, Oban)},
-      {DNSCluster, query: Application.get_env(:backend, :dns_cluster_query) || :ignore},
-      {Phoenix.PubSub, name: Backend.PubSub},
+      {Oban,
+       AshOban.config(
+         Application.fetch_env!(:backend, :ash_domains),
+         Application.fetch_env!(:backend, Oban)
+       )},
       # Start a worker by calling: Backend.Worker.start_link(arg)
       # {Backend.Worker, arg},
       # Start to serve requests, typically the last entry
-      BackendWeb.Endpoint
+      {DNSCluster, query: Application.get_env(:backend, :dns_cluster_query) || :ignore},
+      {Phoenix.PubSub, name: Backend.PubSub},
+      BackendWeb.Endpoint,
+      {AshAuthentication.Supervisor, [otp_app: :backend]}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
