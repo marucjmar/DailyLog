@@ -1,0 +1,72 @@
+<div class="login-page">
+
+  <!-- LEFT SIDE (branding) -->
+  <div class="left-panel">
+    <div class="brand">
+      <h1>MyApp</h1>
+      <p>Nowoczesna aplikacja Angular + PrimeNG</p>
+    </div>
+
+    <div class="decor">
+      <i class="pi pi-shield"></i>
+    </div>
+  </div>
+
+  <!-- RIGHT SIDE (form) -->
+  <div class="right-panel">
+
+    <p-card class="card flex flex-col">
+
+      <ng-template pTemplate="header">
+        <div class="card-header">
+          <h2>Logowanie</h2>
+          <span>Zaloguj się do swojego konta</span>
+        </div>
+      </ng-template>
+
+      <form [formGroup]="loginForm" (ngSubmit)="submit()" class="form flex flex-col gap-4">
+
+        <!-- EMAIL -->
+        <div class="field flex flex-col gap-2">
+          <p-floatlabel variant="on">
+              <input pInputText id="on_label" formControlName="email" type="email" />
+              <label for="on_label">Adres email</label>
+            </p-floatlabel>
+        </div>
+
+        <!-- PASSWORD -->
+        <div class="field flex flex-col gap-2">
+          <p-floatlabel variant="on">
+              <p-password id="on_labelx" formControlName="password" [toggleMask]="true" />
+              <label for="on_labelx">Hasło</label>
+            </p-floatlabel>
+
+      
+          <small *ngIf="loginForm.controls.password.touched && loginForm.controls.password.invalid"
+                 class="error">
+            Minimum 6 znaków
+          </small>
+        </div>
+
+        <!-- BUTTON -->
+        <button
+          pButton
+          type="submit"
+          label="Zaloguj się"
+          icon="pi pi-sign-in"
+          class="login-btn"
+        ></button>
+
+        <div class="footer">
+          <a href="#">Nie pamiętasz hasła?</a>
+        </div>
+
+      </form>
+
+      <asl-google-signin-button type='icon' size='medium'></asl-google-signin-button>
+
+    </p-card>
+
+  </div>
+
+</div>

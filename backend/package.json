@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@flow-js/garmin-connect": "^1.6.17",
+    "maplibre-gl": "^5.23.0"
+  }
+}

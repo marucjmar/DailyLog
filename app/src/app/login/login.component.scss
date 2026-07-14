@@ -1,0 +1,121 @@
+.login-page {
+  height: 100vh;
+  display: flex;
+  font-family: Arial, sans-serif;
+}
+
+/* =========================
+   DESKTOP (default)
+========================= */
+
+.left-panel {
+  flex: 1;
+  background: linear-gradient(135deg, #4f46e5, #06b6d4);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.right-panel {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f5f7fb;
+}
+
+.login-card {
+  width: 380px;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.12);
+}
+
+/* =========================
+   TABLET
+========================= */
+@media (max-width: 1024px) {
+  .left-panel {
+    padding: 40px;
+  }
+
+  .login-card {
+    width: 340px;
+  }
+}
+
+/* =========================
+   MOBILE
+========================= */
+@media (max-width: 768px) {
+  .login-page {
+    flex-direction: column;
+  }
+
+  /* 🔴 branding panel staje się headerem */
+  .left-panel {
+    flex: none;
+    height: 180px;
+    padding: 20px;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .brand h1 {
+    font-size: 28px;
+  }
+
+  .brand p {
+    font-size: 12px;
+  }
+
+  .decor {
+    display: none; /* UX: usuń duży dekor na mobile */
+  }
+
+  /* ⚪ form full width */
+  .right-panel {
+    flex: 1;
+    padding: 20px;
+    align-items: flex-start;
+  }
+
+  .login-card {
+    width: 100%;
+    max-width: 420px;
+    box-shadow: none;
+    border-radius: 12px;
+  }
+
+  .form {
+    gap: 14px;
+  }
+
+  .input {
+    padding: 10px;
+  }
+
+  .login-btn {
+    padding: 10px;
+  }
+}
+
+/* =========================
+   SMALL MOBILE
+========================= */
+@media (max-width: 420px) {
+  .left-panel {
+    height: 140px;
+  }
+
+  .brand h1 {
+    font-size: 22px;
+  }
+
+  .login-card {
+    border-radius: 10px;
+  }
+}
