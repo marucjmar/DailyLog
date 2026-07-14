@@ -7,21 +7,6 @@ defmodule Backend.Accounts.User do
     extensions: [AshJsonApi.Resource, AshAuthentication]
 
   authentication do
-    add_ons do
-      log_out_everywhere do
-        apply_on_password_change? true
-      end
-
-      confirmation :confirm_new_user do
-        monitor_fields [:email]
-        confirm_on_create? true
-        confirm_on_update? false
-        require_interaction? true
-        confirmed_at_field :confirmed_at
-        auto_confirm_actions [:sign_in_with_magic_link, :reset_password_with_token]
-        sender Backend.Accounts.User.Senders.SendNewUserConfirmationEmail
-      end
-    end
 
     tokens do
       enabled? true
@@ -60,14 +45,6 @@ defmodule Backend.Accounts.User do
       base "/users"
 
       post :register_with_password
-
-      post :sign_in_with_password do
-        route "/sign-in"
-
-        metadata fn _subject, user, _request ->
-          %{token: user.__metadata__.token}
-        end
-      end
     end
   end
 
@@ -121,11 +98,6 @@ defmodule Backend.Accounts.User do
 
       # validates the provided email and password and generates a token
       prepare AshAuthentication.Strategy.Password.SignInPreparation
-
-      metadata :token, :string do
-        description "A JWT that can be used to authenticate the user."
-        allow_nil? false
-      end
     end
 
     read :sign_in_with_token do
@@ -270,8 +242,6 @@ defmodule Backend.Accounts.User do
       allow_nil? false
       sensitive? true
     end
-
-    attribute :confirmed_at, :utc_datetime_usec
   end
 
   identities do

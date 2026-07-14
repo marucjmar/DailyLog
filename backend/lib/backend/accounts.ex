@@ -8,5 +8,6 @@ defmodule Backend.Accounts do
   resources do
     resource Backend.Accounts.Token
     resource Backend.Accounts.User
+    resource Backend.Accounts.Session
   end
 end
