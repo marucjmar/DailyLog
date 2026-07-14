@@ -81,7 +81,6 @@ defmodule Backend.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
-      {:nodejs, "~> 2.0"},
       {:cloak_ecto, "~> 1.3"},
       {:rambo, "~> 0.3.4"},
       {:cors_plug, "~> 3.0"},

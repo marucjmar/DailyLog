@@ -59,85 +59,10 @@ defmodule Backend.Integrations do
 
     Multi.new()
     |> Multi.insert(:integration, Integration.changeset(%Integration{}, attrs))
-    |> Multi.run(:compile, fn _repo, %{integration: integration} ->
-      maybe_compile(integration)
-    end)
     |> Multi.run(:enqueue_sync, fn _repo, %{integration: integration} ->
       SyncIntegrationWorker.enqueue(integration.id)
     end)
     |> Repo.transaction()
-  end
-
-  defp maybe_compile(%Integration{template_id: template_id} = integration)
-     when not is_nil(template_id) do
-    template = Repo.get!(IntegrationTemplate, template_id)
-
-    path = case template.compiled_path do
-      nil  ->
-        {:ok, p} = compile_builtin(template)
-        template |> IntegrationTemplate.changeset(%{compiled_path: p, compiled_at: DateTime.utc_now()}) |> Repo.update!()
-        p
-      p -> p
-    end
-
-    # zawsze aktualizuj integration.compiled_path
-    update_compiled_path(integration, path)
-  end
-
-  defp maybe_compile(%Integration{source_code: source_code} = integration)
-      when not is_nil(source_code) do
-    with {:ok, path} <- compile_custom(integration) do
-      update_compiled_path(integration, path)
-    end
-  end
-
-  defp update_compiled_path(integration, path) do
-    integration
-    |> Integration.changeset(%{compiled_path: path, status: :ready})
-    |> Repo.update()
-  end
-
-  defp compile_builtin(%IntegrationTemplate{slug: slug}) do
-    entry  = Path.join([:code.priv_dir(:backend), "integrations/builtin/#{slug}/index.ts"])
-    output = Path.join([:code.priv_dir(:backend), "integrations/compiled/#{slug}.js"])
-
-    File.mkdir_p!(Path.dirname(output))
-
-    case System.cmd("npx", ["esbuild", entry,
-      "--bundle",
-      "--platform=node",
-      "--outfile=#{output}"
-    ], stderr_to_stdout: true) do
-      {_, 0}      -> {:ok, output}
-      {error, _}  -> {:error, error}
-    end
-  end
-
-  defp compile_custom(%Integration{id: id, source_code: source_code, inputs: inputs} = integration) do
-    result = case System.cmd("npx", ["tsx", "/Users/marcin/development/daily-log/backend/lib/backend/integrations/js/build-custom.ts", Jason.encode!(%{dependencies: integration.source_code_dependencies, id: "test" }), source_code], stderr_to_stdout: true) do
-      {_, 0} = x     ->
-        {:ok, "/Users/marcin/development/daily-log/backend/dist/test.js"}
-      {error, _} -> {:error, error}
-    end
-
-    # output = Path.join([:code.priv_dir(:backend), "integrations/compiled/custom/#{id}.js"])
-
-    # File.mkdir_p!(Path.dirname(output))
-
-    # tmp = Path.join(System.tmp_dir!(), "#{id}.ts")
-    # File.write!(tmp, source_code)
-
-    # result = case System.cmd("npx", ["esbuild", tmp,
-    #   "--bundle",
-    #   "--platform=node",
-    #   "--outfile=#{output}"
-    # ], stderr_to_stdout: true) do
-    #   {_, 0}     -> {:ok, output}
-    #   {error, _} -> {:error, error}
-    # end
-
-    # File.rm(tmp)
-    result
   end
 
   @doc """
@@ -195,16 +120,17 @@ defmodule Backend.Integrations do
       date: Date.to_iso8601(integration.next_sync_at),
     })
 
-    {result, events} = case NodeJS.call({integration.compiled_path, "sync"}, [ctxi]) do
-      {:ok, output} ->
-         case Jason.decode(output) do
-          {:ok, data} -> {:ok, data}
-          {:error, error} -> {:error, error.data}
-        end
+    # zamienić na Coderunner z dockera
+    # {result, events} = case NodeJS.call({integration.compiled_path, "sync"}, [ctxi]) do
+    #   {:ok, output} ->
+    #      case Jason.decode(output) do
+    #       {:ok, data} -> {:ok, data}
+    #       {:error, error} -> {:error, error.data}
+    #     end
 
-      {:error, error} ->
-        {:error, error}
-    end
+    #   {:error, error} ->
+    #     {:error, error}
+    # end
 
     duration_ms = System.monotonic_time(:millisecond) - started_at
 

@@ -8,7 +8,6 @@ defmodule Backend.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      {NodeJS.Supervisor, [path: "/Users/marcin/development/daily-log/backend/dist", pool_size: 4]},
       BackendWeb.Telemetry,
       Backend.Repo,
       {Oban, Application.fetch_env!(:backend, Oban)},
