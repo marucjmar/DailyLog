@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Garmin Connect integration</title>
+
+    <style>
+      [v-cloak] {
+        display: none;
+      }
+
+      .field-error {
+        color: var(--pico-del-color, #c0392b);
+        font-size: 0.85em;
+        margin-top: 0.25rem;
+      }
+    </style>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    />
+  </head>
+
+  <body>
+    <div id="app" data-integration="Garmin" v-cloak>
+      <main class="container">
+        <article>
+          <header>
+            <hgroup>
+              <h1>{{ integrationLabel }}</h1>
+              <p>{{ t('subtitle') }}</p>
+            </hgroup>
+          </header>
+
+          <form @submit.prevent="connectIntegration" novalidate>
+            <label>
+              {{ t('email') }}
+
+              <input
+                v-model.trim="form.email"
+                @blur="touched.email = true"
+                type="email"
+                name="email"
+                autocomplete="username"
+                :aria-invalid="emailTouchedInvalid"
+                :disabled="running"
+                required
+              />
+
+              <small v-if="emailTouchedInvalid" class="field-error">
+                {{ emailError }}
+              </small>
+            </label>
+
+            <label>
+              {{ t('password') }}
+
+              <input
+                v-model="form.password"
+                @blur="touched.password = true"
+                type="password"
+                name="password"
+                autocomplete="current-password"
+                :aria-invalid="passwordTouchedInvalid"
+                :disabled="running"
+                required
+              />
+
+              <small v-if="passwordTouchedInvalid" class="field-error">
+                {{ passwordError }}
+              </small>
+            </label>
+
+            <button type="submit" :aria-busy="running" :disabled="running">
+              {{ buttonLabel }}
+            </button>
+          </form>
+
+          <article v-if="error" aria-invalid="true">
+            <header>
+              <strong>{{ t('error_heading') }}</strong>
+            </header>
+
+            <pre>{{ formatValue(error) }}</pre>
+          </article>
+
+          <article v-if="result">
+            <header>
+              <strong>{{ t('success_heading') }}</strong>
+            </header>
+
+            <pre>{{ formatValue(result) }}</pre>
+          </article>
+        </article>
+      </main>
+    </div>
+
+    <script type="module">
+      import {
+        computed,
+        createApp,
+        reactive,
+        ref,
+      } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+
+      import { RemoteExecutor } from "/assets/js/remote_executor.js";
+
+      // -------------------------
+      // i18n (inline)
+      // -------------------------
+
+      const TRANSLATIONS = {
+        pl: {
+          subtitle: "Połącz swoje konto z aplikacją.",
+          email: "Adres e-mail",
+          password: "Hasło",
+          button_connect: "Połącz",
+          button_connecting: "Trwa łączenie…",
+          error_heading: "Błąd wykonania",
+          success_heading: "Integracja została połączona",
+          mfa_prompt: "Wprowadź kod MFA:",
+          mfa_missing: "Nie podano kodu MFA.",
+          mfa_timeout: "Wysyłanie kodu MFA przekroczyło limit czasu.",
+          validation_email_required: "Adres e-mail jest wymagany.",
+          validation_email_invalid: "Podaj poprawny adres e-mail.",
+          validation_password_required: "Hasło jest wymagane.",
+          validation_password_too_short:
+            "Hasło musi mieć co najmniej 1 znaków.",
+        },
+        en: {
+          subtitle: "Connect your account to the application.",
+          email: "Email address",
+          password: "Password",
+          button_connect: "Connect",
+          button_connecting: "Connecting…",
+          error_heading: "Execution error",
+          success_heading: "Integration connected successfully",
+          mfa_prompt: "Enter MFA code:",
+          mfa_missing: "No MFA code was provided.",
+          mfa_timeout: "Sending the MFA code timed out.",
+          validation_email_required: "Email address is required.",
+          validation_email_invalid: "Enter a valid email address.",
+          validation_password_required: "Password is required.",
+          validation_password_too_short:
+            "Password must be at least 1 characters.",
+        },
+        de: {
+          subtitle: "Verbinden Sie Ihr Konto mit der Anwendung.",
+          email: "E-Mail-Adresse",
+          password: "Passwort",
+          button_connect: "Verbinden",
+          button_connecting: "Verbindung wird hergestellt…",
+          error_heading: "Ausführungsfehler",
+          success_heading: "Integration erfolgreich verbunden",
+          mfa_prompt: "MFA-Code eingeben:",
+          mfa_missing: "Es wurde kein MFA-Code angegeben.",
+          mfa_timeout:
+            "Das Senden des MFA-Codes hat das Zeitlimit überschritten.",
+          validation_email_required: "Die E-Mail-Adresse ist erforderlich.",
+          validation_email_invalid:
+            "Geben Sie eine gültige E-Mail-Adresse ein.",
+          validation_password_required: "Das Passwort ist erforderlich.",
+          validation_password_too_short:
+            "Das Passwort muss mindestens 1 Zeichen lang sein.",
+        },
+        es: {
+          subtitle: "Conecta tu cuenta a la aplicación.",
+          email: "Correo electrónico",
+          password: "Contraseña",
+          button_connect: "Conectar",
+          button_connecting: "Conectando…",
+          error_heading: "Error de ejecución",
+          success_heading: "Integración conectada correctamente",
+          mfa_prompt: "Introduce el código MFA:",
+          mfa_missing: "No se proporcionó ningún código MFA.",
+          mfa_timeout: "Se agotó el tiempo al enviar el código MFA.",
+          validation_email_required: "El correo electrónico es obligatorio.",
+          validation_email_invalid: "Introduce un correo electrónico válido.",
+          validation_password_required: "La contraseña es obligatoria.",
+          validation_password_too_short:
+            "La contraseña debe tener al menos 1 caracteres.",
+        },
+        fr: {
+          subtitle: "Connectez votre compte à l'application.",
+          email: "Adresse e-mail",
+          password: "Mot de passe",
+          button_connect: "Connecter",
+          button_connecting: "Connexion en cours…",
+          error_heading: "Erreur d'exécution",
+          success_heading: "Intégration connectée avec succès",
+          mfa_prompt: "Entrez le code MFA :",
+          mfa_missing: "Aucun code MFA n'a été saisi.",
+          mfa_timeout: "L'envoi du code MFA a expiré.",
+          validation_email_required: "L'adresse e-mail est requise.",
+          validation_email_invalid: "Saisissez une adresse e-mail valide.",
+          validation_password_required: "Le mot de passe est requis.",
+          validation_password_too_short:
+            "Le mot de passe doit contenir au moins 1 caractères.",
+        },
+        cs: {
+          subtitle: "Připojte svůj účet k aplikaci.",
+          email: "E-mailová adresa",
+          password: "Heslo",
+          button_connect: "Připojit",
+          button_connecting: "Připojování…",
+          error_heading: "Chyba při provádění",
+          success_heading: "Integrace byla úspěšně připojena",
+          mfa_prompt: "Zadejte kód MFA:",
+          mfa_missing: "Nebyl zadán žádný kód MFA.",
+          mfa_timeout: "Vypršel časový limit pro odeslání kódu MFA.",
+          validation_email_required: "E-mailová adresa je povinná.",
+          validation_email_invalid: "Zadejte platnou e-mailovou adresu.",
+          validation_password_required: "Heslo je povinné.",
+          validation_password_too_short: "Heslo musí mít alespoň 1 znaků.",
+        },
+      };
+
+      const FALLBACK_LOCALE = "en";
+      const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const MIN_PASSWORD_LENGTH = 1;
+
+      function detectLocale() {
+        const candidates = navigator.languages?.length
+          ? navigator.languages
+          : [navigator.language];
+
+        for (const candidate of candidates) {
+          const lang = candidate.split("-")[0].toLowerCase();
+          if (TRANSLATIONS[lang]) return lang;
+        }
+
+        return FALLBACK_LOCALE;
+      }
+
+      const locale = detectLocale();
+      document.documentElement.setAttribute("lang", locale);
+
+      function t(key) {
+        return (
+          TRANSLATIONS[locale]?.[key] ??
+          TRANSLATIONS[FALLBACK_LOCALE][key] ??
+          key
+        );
+      }
+
+      // -------------------------
+      // App
+      // -------------------------
+
+      const root = document.querySelector("#app");
+
+      if (!root) {
+        throw new Error("Application root was not found");
+      }
+
+      const integration = root.dataset.integration;
+
+      createApp({
+        setup() {
+          const running = ref(false);
+          const result = ref(null);
+          const error = ref(null);
+
+          const form = reactive({
+            email: "",
+            password: "",
+          });
+
+          const touched = reactive({
+            email: false,
+            password: false,
+          });
+
+          const integrationLabel = computed(() => {
+            return integration.charAt(0).toUpperCase() + integration.slice(1);
+          });
+
+          const buttonLabel = computed(() => {
+            return running.value ? t("button_connecting") : t("button_connect");
+          });
+
+          const emailError = computed(() => {
+            if (!form.email) return t("validation_email_required");
+            if (!EMAIL_REGEX.test(form.email))
+              return t("validation_email_invalid");
+            return null;
+          });
+
+          const passwordError = computed(() => {
+            if (!form.password) return t("validation_password_required");
+            if (form.password.length < MIN_PASSWORD_LENGTH) {
+              return t("validation_password_too_short");
+            }
+            return null;
+          });
+
+          const emailTouchedInvalid = computed(() => {
+            if (!touched.email) return undefined;
+            return !!emailError.value;
+          });
+
+          const passwordTouchedInvalid = computed(() => {
+            if (!touched.password) return undefined;
+            return !!passwordError.value;
+          });
+
+          const formValid = computed(
+            () => !emailError.value && !passwordError.value,
+          );
+
+          function connectIntegration() {
+            touched.email = true;
+            touched.password = true;
+
+            if (!formValid.value || running.value) {
+              return;
+            }
+
+            running.value = true;
+            result.value = null;
+            error.value = null;
+
+            const executor = new RemoteExecutor(integration);
+
+            executor
+              .execute("connect", {
+                username: form.email,
+                password: form.password,
+              })
+              .onInputRequest("mfa", (payload) => {
+                const userInput = prompt(t("mfa_prompt"));
+
+                if (!userInput?.trim()) {
+                  error.value = { message: t("mfa_missing") };
+                  running.value = false;
+                  executor.cancel();
+                  return;
+                }
+
+                executor
+                  .submitInput(payload.id, {
+                    code: userInput.trim(),
+                  })
+                  .receive("error", (response) => {
+                    error.value = response;
+                  })
+                  .receive("timeout", () => {
+                    error.value = { message: t("mfa_timeout") };
+                  });
+              })
+              .onDone((response) => {
+                running.value = false;
+                result.value = response;
+              })
+              .onError((response) => {
+                running.value = false;
+                error.value = normalizeError(response);
+              });
+          }
+
+          function normalizeError(value) {
+            if (value instanceof Error) {
+              return {
+                message: value.message,
+              };
+            }
+
+            return value;
+          }
+
+          function formatValue(value) {
+            if (typeof value === "string") {
+              return value;
+            }
+
+            return JSON.stringify(value, null, 2);
+          }
+
+          return {
+            form,
+            touched,
+            running,
+            result,
+            error,
+            integrationLabel,
+            buttonLabel,
+            emailError,
+            passwordError,
+            emailTouchedInvalid,
+            passwordTouchedInvalid,
+            t,
+            connectIntegration,
+            formatValue,
+          };
+        },
+      }).mount(root);
+    </script>
+  </body>
+</html>
