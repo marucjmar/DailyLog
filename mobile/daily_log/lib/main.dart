@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:daily_log/repositories/session.dart';
 import 'package:daily_log/stores/session.dart';
@@ -83,10 +84,26 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> get _pages => [
     TimelinePage(
       selectedDate: _selectedDate,
-      activityByDay: _activityByDay,
       onDateChanged: (date) {
         setState(() {
           _selectedDate = date;
+        });
+      },
+      loadActivityCounts: (start, end) async {
+        final random = Random();
+
+        return await Future.delayed(const Duration(milliseconds: 1250), () {
+          final Map<DateTime, int> result = {};
+
+          for (
+            DateTime date = start;
+            !date.isAfter(end);
+            date = date.add(const Duration(days: 1))
+          ) {
+            result[date] = random.nextInt(11); // 0-10
+          }
+
+          return result;
         });
       },
     ),
