@@ -1,6 +1,17 @@
-import 'package:flutter/material.dart';
+import 'dart:io';
 
-void main() {
+import 'package:daily_log/repositories/session.dart';
+import 'package:daily_log/stores/session.dart';
+import 'package:daily_log/views/login.dart';
+import 'package:daily_log/views/timeline.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
+
+void main() async {
+  await GetStorage.init();
+  await SessionRepository.instance.init();
+
   runApp(const MyApp());
 }
 
@@ -30,7 +41,14 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: .fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: AnimatedBuilder(
+        animation: SessionRepository.instance,
+        builder: (context, child) {
+          return SessionRepository.instance.isLoggedIn
+              ?  const MyHomePage(title: 'Flutter Demo Home Page')
+              :  const LoginPage();
+        },
+      ),
     );
   }
 }
@@ -54,68 +72,254 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  int _selectedIndex = 0;
+  DateTime _selectedDate = DateTime.now();
+  final Map<DateTime, int> _activityByDay = {
+    DateTime(2026, 7, 10): 1,
+    DateTime(2026, 7, 11): 4,
+    DateTime(2026, 7, 12): 8,
+    DateTime(2026, 7, 13): 2,
+    DateTime(2026, 7, 15): 10,
+  };
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  List<Widget> get _pages => [
+    TimelinePage(
+      selectedDate: _selectedDate,
+      activityByDay: _activityByDay,
+      onDateChanged: (date) {
+        setState(() {
+          _selectedDate = date;
+        });
+      },
+    ),
+    const Center(
+      child: Text('Historia'),
+    ),
+  ];
+
+  Future<void> _openAddEntryBottomSheet() async {
+    final textController = TextEditingController();
+    String? attachmentName;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      builder: (bottomSheetContext) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            Future<void> addAttachment() async {
+              FilePickerResult? result = await FilePicker.pickFiles();
+
+              File? file;
+
+              if (result != null) {
+                file = File(result.files.single.path!);
+              } else {
+                // User canceled the picker
+              }
+
+              if (file == null) return;
+
+              // Tutaj później możesz otworzyć file picker.
+              // Na razie przykładowy załącznik:
+              setModalState(() {
+                  attachmentName = file!.path;
+              });
+            }
+
+            void removeAttachment() {
+              setModalState(() {
+                attachmentName = null;
+              });
+            }
+
+            Future<void> submit() async {
+              final text = textController.text.trim();
+
+              if (text.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Wpisz treść'),
+                  ),
+                );
+                return;
+              }
+
+              debugPrint('Treść: $text');
+              debugPrint('Załącznik: $attachmentName');
+
+              // Tutaj wywołaj repository/API:
+              //
+              // await DailyLogRepository.instance.createEntry(
+              //   text: text,
+              //   attachment: attachment,
+              // );
+
+              if (bottomSheetContext.mounted) {
+                Navigator.of(bottomSheetContext).pop();
+              }
+
+              if (mounted) {
+                ScaffoldMessenger.of(this.context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Wpis został dodany'),
+                  ),
+                );
+              }
+            }
+
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 8,
+                bottom: MediaQuery.viewInsetsOf(context).bottom + 20,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Nowy wpis',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: textController,
+                      autofocus: true,
+                      minLines: 1,
+                      maxLines: 1,
+                      keyboardType: TextInputType.multiline,
+                      textCapitalization: TextCapitalization.sentences,
+                      decoration: const InputDecoration(
+                        labelText: 'Treść',
+                        hintText: 'Napisz, co wydarzyło się dzisiaj...',
+                        alignLabelWithHint: true,
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    if (attachmentName != null) ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.outlineVariant,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.attach_file),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                attachmentName!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: removeAttachment,
+                              tooltip: 'Usuń załącznik',
+                              icon: const Icon(Icons.close),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        IconButton.filledTonal(
+                          onPressed: addAttachment,
+                          tooltip: 'Dodaj załącznik',
+                          icon: const Icon(Icons.attach_file),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: FilledButton.icon(
+                            onPressed: submit,
+                            icon: const Icon(Icons.send),
+                            label: const Text('Wyślij'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    // textController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
-          children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
+
+      body: _pages[_selectedIndex],
+
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
+        onPressed: _openAddEntryBottomSheet,
         child: const Icon(Icons.add),
+      ),
+
+      floatingActionButtonLocation:
+          FloatingActionButtonLocation.centerDocked,
+
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 8,
+        child: SizedBox(
+          height: 65,
+          child: Row(
+            children: [
+              Expanded(
+                child: IconButton(
+                  icon: Icon(
+                    Icons.timeline,
+                    color: _selectedIndex == 0
+                        ? Theme.of(context).colorScheme.primary
+                        : Colors.grey,
+                  ),
+                  onPressed: () {
+                    setState(() => _selectedIndex = 0);
+                  },
+                ),
+              ),
+
+              const SizedBox(width: 48),
+
+              Expanded(
+                child: IconButton(
+                  icon: Icon(
+                    Icons.history,
+                    color: _selectedIndex == 1
+                        ? Theme.of(context).colorScheme.primary
+                        : Colors.grey,
+                  ),
+                  onPressed: () {
+                    setState(() => _selectedIndex = 1);
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
