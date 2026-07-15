@@ -1,7 +1,7 @@
 import os from "node:os";
 import fs from "node:fs";
 
-import gc, { IGarminTokens } from "npm:garmin-connect-nexxt@1.6.19";
+import gc, { IGarminTokens } from "npm:garmin-connect-nexxt@1.6.23";
 import dayjs from "npm:dayjs@1.11.21";
 
 import type { ActivityEvent, Ctx, SyncResult } from "../../template.ts";
@@ -24,6 +24,7 @@ export async function sync(ctx: Context): Promise<SyncResult> {
 
   const GCClient = new GarminConnect();
   GCClient.loadToken(ctx.state.session.oauth1, ctx.state.session.oauth2);
+  GCClient.client.setNextRequestsDelay(1000);
 
   const activities = await GCClient.getActivities(start, activitiesCount);
   const events: ActivityEvent[] = [];

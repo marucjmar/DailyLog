@@ -1,4 +1,4 @@
-import gc from 'npm:garmin-connect-nexxt@1.6.19';
+import gc from 'npm:garmin-connect-nexxt@1.6.23';
 import type { State } from './sync.ts';
 
 const { GarminConnect } = gc;
@@ -10,8 +10,12 @@ export async function connect(payload: { username: string; password: string }, i
   const GCClient = new GarminConnect({
     username: payload.username,
     password: payload.password,
-    mfaHandler: async () => await io.requestInput("mfa").then((input) => input.code),
+    options: {
+      mfaHandler: async () => await io.requestInput("mfa").then((input) => input.code),
+    }
   });
+
+  GCClient.client.setNextRequestsDelay(1000);
 
   try {
     await GCClient.login();
