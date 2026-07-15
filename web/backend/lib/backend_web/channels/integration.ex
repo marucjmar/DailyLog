@@ -25,7 +25,7 @@ defmodule BackendWeb.API.IntegrationChannel do
   @impl true
   def handle_in("execute", %{"id" => id, "function" => fn_name, "payload" => payload}, socket) do
     path =
-      "/Users/marcin/development/daily-log/backend/lib/backend/integrations/js/templates/#{socket.assigns.integration}/connect.ts"
+      "/Users/marcin/development/daily-log/web/backend/lib/backend/integrations/js/templates/#{socket.assigns.integration}/connect.ts"
 
     {:ok, %{port: port, tmp_files: tmp_files}} = CodeRunner.run_file(path)
     CodeRunner.execute(port, fn_name, payload)

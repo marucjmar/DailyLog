@@ -6,10 +6,10 @@ defmodule BackendWeb.API.IntegrationsController do
 
     case integration do
       "garmin" ->
-        html(conn, File.read!("/Users/marcin/development/daily-log/backend/lib/backend_web/controllers/api/integrations_html/garmin.html"))
+        html(conn, File.read!("/Users/marcin/development/daily-log/web/backend/lib/backend_web/controllers/api/integrations_html/garmin.html"))
 
       "immich" ->
-        html(conn, File.read!("/Users/marcin/development/daily-log/backend/lib/backend_web/controllers/api/integrations_html/immich.html"))
+        html(conn, File.read!("/Users/marcin/development/daily-log/web/backend/lib/backend_web/controllers/api/integrations_html/immich.html"))
 
       _ ->
         conn
