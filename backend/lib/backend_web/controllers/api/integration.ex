@@ -8,6 +8,9 @@ defmodule BackendWeb.API.IntegrationsController do
       "garmin" ->
         html(conn, File.read!("/Users/marcin/development/daily-log/backend/lib/backend_web/controllers/api/integrations_html/connect.html"))
 
+      "immich" ->
+        html(conn, File.read!("/Users/marcin/development/daily-log/backend/lib/backend_web/controllers/api/integrations_html/immich.html"))
+
       _ ->
         conn
         |> put_status(:not_found)

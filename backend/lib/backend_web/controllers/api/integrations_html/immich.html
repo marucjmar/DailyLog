@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Immich integration</title>
+
+    <style>
+      [v-cloak] {
+        display: none;
+      }
+
+      .field-error {
+        color: var(--pico-del-color, #c0392b);
+        font-size: 0.85em;
+        margin-top: 0.25rem;
+      }
+    </style>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    />
+  </head>
+
+  <body>
+    <div id="app" data-integration="Immich" v-cloak>
+      <main class="container">
+        <article>
+          <header>
+            <hgroup>
+              <h1>{{ integrationLabel }}</h1>
+              <p>{{ t('subtitle') }}</p>
+            </hgroup>
+          </header>
+
+          <form @submit.prevent="connectIntegration" novalidate>
+            <label>
+              {{ t('host') }}
+
+              <input
+                v-model.trim="form.host"
+                @blur="touched.host = true"
+                type="url"
+                name="host"
+                placeholder="https://immich.example.com"
+                autocomplete="url"
+                :aria-invalid="hostTouchedInvalid"
+                :disabled="running"
+                required
+              />
+
+              <small v-if="hostTouchedInvalid" class="field-error">
+                {{ hostError }}
+              </small>
+            </label>
+
+            <label>
+              {{ t('api_key') }}
+
+              <input
+                v-model.trim="form.apiKey"
+                @blur="touched.apiKey = true"
+                type="password"
+                name="apiKey"
+                autocomplete="off"
+                :aria-invalid="apiKeyTouchedInvalid"
+                :disabled="running"
+                required
+              />
+
+              <small v-if="apiKeyTouchedInvalid" class="field-error">
+                {{ apiKeyError }}
+              </small>
+            </label>
+
+            <button type="submit" :aria-busy="running" :disabled="running">
+              {{ buttonLabel }}
+            </button>
+          </form>
+
+          <article v-if="error" aria-invalid="true">
+            <header>
+              <strong>{{ t('error_heading') }}</strong>
+            </header>
+
+            <pre>{{ formatValue(error) }}</pre>
+          </article>
+
+          <article v-if="result">
+            <header>
+              <strong>{{ t('success_heading') }}</strong>
+            </header>
+
+            <pre>{{ formatValue(result) }}</pre>
+          </article>
+        </article>
+      </main>
+    </div>
+
+    <script type="module">
+      import {
+        computed,
+        createApp,
+        reactive,
+        ref,
+      } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+
+      import { RemoteExecutor } from "/assets/js/remote_executor.js";
+
+      // -------------------------
+      // i18n (inline)
+      // -------------------------
+
+      const TRANSLATIONS = {
+        pl: {
+          subtitle: "Połącz swoje konto z aplikacją.",
+          host: "Adres serwera (host)",
+          api_key: "Klucz API",
+          button_connect: "Połącz",
+          button_connecting: "Trwa łączenie…",
+          error_heading: "Błąd wykonania",
+          success_heading: "Integracja została połączona",
+          validation_host_required: "Adres serwera jest wymagany.",
+          validation_host_invalid:
+            "Podaj poprawny adres URL, np. https://immich.example.com.",
+          validation_api_key_required: "Klucz API jest wymagany.",
+        },
+        en: {
+          subtitle: "Connect your account to the application.",
+          host: "Server host",
+          api_key: "API key",
+          button_connect: "Connect",
+          button_connecting: "Connecting…",
+          error_heading: "Execution error",
+          success_heading: "Integration connected successfully",
+          validation_host_required: "Server host is required.",
+          validation_host_invalid:
+            "Enter a valid URL, e.g. https://immich.example.com.",
+          validation_api_key_required: "API key is required.",
+        },
+        de: {
+          subtitle: "Verbinden Sie Ihr Konto mit der Anwendung.",
+          host: "Server-Host",
+          api_key: "API-Schlüssel",
+          button_connect: "Verbinden",
+          button_connecting: "Verbindung wird hergestellt…",
+          error_heading: "Ausführungsfehler",
+          success_heading: "Integration erfolgreich verbunden",
+          validation_host_required: "Der Server-Host ist erforderlich.",
+          validation_host_invalid:
+            "Geben Sie eine gültige URL ein, z. B. https://immich.example.com.",
+          validation_api_key_required: "Der API-Schlüssel ist erforderlich.",
+        },
+        es: {
+          subtitle: "Conecta tu cuenta a la aplicación.",
+          host: "Host del servidor",
+          api_key: "Clave API",
+          button_connect: "Conectar",
+          button_connecting: "Conectando…",
+          error_heading: "Error de ejecución",
+          success_heading: "Integración conectada correctamente",
+          validation_host_required: "El host del servidor es obligatorio.",
+          validation_host_invalid:
+            "Introduce una URL válida, p. ej. https://immich.example.com.",
+          validation_api_key_required: "La clave API es obligatoria.",
+        },
+        fr: {
+          subtitle: "Connectez votre compte à l'application.",
+          host: "Hôte du serveur",
+          api_key: "Clé API",
+          button_connect: "Connecter",
+          button_connecting: "Connexion en cours…",
+          error_heading: "Erreur d'exécution",
+          success_heading: "Intégration connectée avec succès",
+          validation_host_required: "L'hôte du serveur est requis.",
+          validation_host_invalid:
+            "Saisissez une URL valide, par ex. https://immich.example.com.",
+          validation_api_key_required: "La clé API est requise.",
+        },
+        cs: {
+          subtitle: "Připojte svůj účet k aplikaci.",
+          host: "Adresa serveru",
+          api_key: "Klíč API",
+          button_connect: "Připojit",
+          button_connecting: "Připojování…",
+          error_heading: "Chyba při provádění",
+          success_heading: "Integrace byla úspěšně připojena",
+          validation_host_required: "Adresa serveru je povinná.",
+          validation_host_invalid:
+            "Zadejte platnou adresu URL, např. https://immich.example.com.",
+          validation_api_key_required: "Klíč API je povinný.",
+        },
+      };
+
+      const FALLBACK_LOCALE = "en";
+      const URL_REGEX = /^https?:\/\/.+/i;
+
+      function detectLocale() {
+        const candidates = navigator.languages?.length
+          ? navigator.languages
+          : [navigator.language];
+
+        for (const candidate of candidates) {
+          const lang = candidate.split("-")[0].toLowerCase();
+          if (TRANSLATIONS[lang]) return lang;
+        }
+
+        return FALLBACK_LOCALE;
+      }
+
+      const locale = detectLocale();
+      document.documentElement.setAttribute("lang", locale);
+
+      function t(key) {
+        return (
+          TRANSLATIONS[locale]?.[key] ??
+          TRANSLATIONS[FALLBACK_LOCALE][key] ??
+          key
+        );
+      }
+
+      // -------------------------
+      // App
+      // -------------------------
+
+      const root = document.querySelector("#app");
+
+      if (!root) {
+        throw new Error("Application root was not found");
+      }
+
+      const integration = root.dataset.integration;
+
+      createApp({
+        setup() {
+          const running = ref(false);
+          const result = ref(null);
+          const error = ref(null);
+
+          const form = reactive({
+            host: "",
+            apiKey: "",
+          });
+
+          const touched = reactive({
+            host: false,
+            apiKey: false,
+          });
+
+          const integrationLabel = computed(() => {
+            return integration.charAt(0).toUpperCase() + integration.slice(1);
+          });
+
+          const buttonLabel = computed(() => {
+            return running.value ? t("button_connecting") : t("button_connect");
+          });
+
+          const hostError = computed(() => {
+            if (!form.host) return t("validation_host_required");
+            if (!URL_REGEX.test(form.host)) return t("validation_host_invalid");
+            return null;
+          });
+
+          const apiKeyError = computed(() => {
+            if (!form.apiKey) return t("validation_api_key_required");
+            return null;
+          });
+
+          const hostTouchedInvalid = computed(() => {
+            if (!touched.host) return undefined;
+            return !!hostError.value;
+          });
+
+          const apiKeyTouchedInvalid = computed(() => {
+            if (!touched.apiKey) return undefined;
+            return !!apiKeyError.value;
+          });
+
+          const formValid = computed(
+            () => !hostError.value && !apiKeyError.value,
+          );
+
+          function connectIntegration() {
+            touched.host = true;
+            touched.apiKey = true;
+
+            if (!formValid.value || running.value) {
+              return;
+            }
+
+            running.value = true;
+            result.value = null;
+            error.value = null;
+
+            const executor = new RemoteExecutor(integration);
+
+            executor
+              .execute("connect", {
+                host: form.host,
+                apiKey: form.apiKey,
+              })
+              .onDone((response) => {
+                running.value = false;
+                result.value = response;
+              })
+              .onError((response) => {
+                running.value = false;
+                error.value = normalizeError(response);
+              });
+          }
+
+          function normalizeError(value) {
+            if (value instanceof Error) {
+              return {
+                message: value.message,
+              };
+            }
+
+            return value;
+          }
+
+          function formatValue(value) {
+            if (typeof value === "string") {
+              return value;
+            }
+
+            return JSON.stringify(value, null, 2);
+          }
+
+          return {
+            form,
+            touched,
+            running,
+            result,
+            error,
+            integrationLabel,
+            buttonLabel,
+            hostError,
+            apiKeyError,
+            hostTouchedInvalid,
+            apiKeyTouchedInvalid,
+            t,
+            connectIntegration,
+            formatValue,
+          };
+        },
+      }).mount(root);
+    </script>
+  </body>
+</html>
