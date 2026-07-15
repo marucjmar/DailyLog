@@ -9,6 +9,7 @@ defmodule Backend.Days.Day do
     field :events_stats, :map
     field :timeline, :map
     field :summary, :string
+    field :ai_summary, :string
 
     timestamps(type: :utc_datetime)
   end
@@ -16,7 +17,7 @@ defmodule Backend.Days.Day do
   @doc false
   def changeset(day, attrs) do
     day
-    |> cast(attrs, [:user_id, :date, :events_count, :events_stats, :timeline, :summary])
+    |> cast(attrs, [:user_id, :date, :events_count, :events_stats, :timeline, :summary, :ai_summary])
     |> validate_required([:user_id, :date, :events_count, :events_stats, :timeline, :summary])
   end
 end
