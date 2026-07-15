@@ -39,14 +39,14 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: .fromSeed(seedColor: Colors.amber),
       ),
       home: AnimatedBuilder(
         animation: SessionRepository.instance,
         builder: (context, child) {
           return SessionRepository.instance.isLoggedIn
-              ?  const MyHomePage(title: 'Flutter Demo Home Page')
-              :  const LoginPage();
+              ? const MyHomePage()
+              : const LoginPage();
         },
       ),
     );
@@ -54,7 +54,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  const MyHomePage({super.key});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -64,8 +64,6 @@ class MyHomePage extends StatefulWidget {
   // case the title) provided by the parent (in this case the App widget) and
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
-
-  final String title;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -92,13 +90,13 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       },
     ),
-    const Center(
-      child: Text('Historia'),
-    ),
+    const Center(child: Text('Historia')),
   ];
 
   Future<void> _openAddEntryBottomSheet() async {
     final textController = TextEditingController();
+    final focusNode = FocusNode();
+
     String? attachmentName;
 
     await showModalBottomSheet<void>(
@@ -109,6 +107,12 @@ class _MyHomePageState extends State<MyHomePage> {
       builder: (bottomSheetContext) {
         return StatefulBuilder(
           builder: (context, setModalState) {
+            Future.delayed(const Duration(milliseconds: 100), () {
+              if (mounted) {
+                focusNode.requestFocus();
+              }
+            });
+
             Future<void> addAttachment() async {
               FilePickerResult? result = await FilePicker.pickFiles();
 
@@ -125,7 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
               // Tutaj później możesz otworzyć file picker.
               // Na razie przykładowy załącznik:
               setModalState(() {
-                  attachmentName = file!.path;
+                attachmentName = file!.path;
               });
             }
 
@@ -139,11 +143,9 @@ class _MyHomePageState extends State<MyHomePage> {
               final text = textController.text.trim();
 
               if (text.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Wpisz treść'),
-                  ),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('Wpisz treść')));
                 return;
               }
 
@@ -162,11 +164,7 @@ class _MyHomePageState extends State<MyHomePage> {
               }
 
               if (mounted) {
-                ScaffoldMessenger.of(this.context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Wpis został dodany'),
-                  ),
-                );
+                showToast(this.context, 'Wpis został dodany');
               }
             }
 
@@ -189,7 +187,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     const SizedBox(height: 16),
                     TextField(
                       controller: textController,
-                      autofocus: true,
+                      autofocus: false,
+                      focusNode: focusNode,
                       minLines: 1,
                       maxLines: 1,
                       keyboardType: TextInputType.multiline,
@@ -264,22 +263,56 @@ class _MyHomePageState extends State<MyHomePage> {
     // textController.dispose();
   }
 
+  void showToast(BuildContext context, String message) {
+    final overlay = Overlay.of(context);
+
+    final entry = OverlayEntry(
+      builder: (context) => Positioned(
+        left: 20,
+        right: 20,
+        bottom: 100,
+        child: SafeArea(
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.inverseSurface,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: const [
+                  BoxShadow(blurRadius: 12, color: Colors.black26),
+                ],
+              ),
+              child: Text(
+                message,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onInverseSurface,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    overlay.insert(entry);
+
+    Future.delayed(const Duration(seconds: 2), entry.remove);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-
       body: _pages[_selectedIndex],
 
       floatingActionButton: FloatingActionButton(
+        shape: const CircleBorder(),
         onPressed: _openAddEntryBottomSheet,
         child: const Icon(Icons.add),
       ),
 
-      floatingActionButtonLocation:
-          FloatingActionButtonLocation.centerDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),

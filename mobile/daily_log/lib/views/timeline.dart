@@ -48,16 +48,25 @@ class TimelinePage extends StatefulWidget {
 }
 
 class _TimelinePageState extends State<TimelinePage> {
-  static const int _daysBefore = 180;
-  static const int _daysAfter = 180;
-
-  late final ScrollController _scrollController;
-
   static const double _itemWidth = 72;
+
+  // Ile dni wstecz/w przód od kotwicy jest dostępne w poziomym pasku.
+  // To tylko granice przewijania (dla scrollbara) — lista i tak jest
+  // budowana leniwie, więc te liczby mogą być duże bez wpływu na wydajność.
+  static const int _pastDaysLimit = 365 * 20; // ok. 20 lat wstecz
+  static const int _futureDaysLimit = 3650; // spójne z showDatePicker
+
+  final Key _centerKey = const ValueKey('timeline-forward-sliver');
+
+  late final DateTime _anchorDate;
+  late final ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
+
+    final now = DateTime.now();
+    _anchorDate = DateTime(now.year, now.month, now.day);
 
     _scrollController = ScrollController();
 
@@ -77,25 +86,14 @@ class _TimelinePageState extends State<TimelinePage> {
     }
   }
 
-  DateTime get _startDate => DateTime(2020, 1, 1);
-
-  DateTime get _endDate {
-    final now = DateTime.now();
-    return DateTime(now.year, now.month, now.day);
-  }
-
-  int get _numberOfDays {
-    return _endDate.difference(_startDate).inDays + 2;
+  /// Przesunięcie (dodatnie lub ujemne) w dniach względem kotwicy.
+  int _indexForDate(DateTime date) {
+    final normalizedDate = DateTime(date.year, date.month, date.day);
+    return normalizedDate.difference(_anchorDate).inDays;
   }
 
   DateTime _dateForIndex(int index) {
-    return _startDate.add(Duration(days: index));
-  }
-
-  int _indexForDate(DateTime date) {
-    final normalizedDate = DateTime(date.year, date.month, date.day);
-
-    return normalizedDate.difference(_startDate).inDays;
+    return _anchorDate.add(Duration(days: index));
   }
 
   Future<void> _scrollToSelectedDate({bool animate = true}) async {
@@ -105,7 +103,9 @@ class _TimelinePageState extends State<TimelinePage> {
 
     final index = _indexForDate(widget.selectedDate);
 
-    if (index < 0 || index >= _numberOfDays) {
+    if (index < -_pastDaysLimit || index > _futureDaysLimit) {
+      // Data poza dostępnym zakresem przewijania paska — po prostu nie
+      // przewijamy (wybrana data i tak jest ustawiona wyżej, w treści).
       return;
     }
 
@@ -114,9 +114,10 @@ class _TimelinePageState extends State<TimelinePage> {
     final targetOffset =
         index * _itemWidth - (screenWidth / 2) + (_itemWidth / 2);
 
+    final minOffset = _scrollController.position.minScrollExtent;
     final maxOffset = _scrollController.position.maxScrollExtent;
 
-    final offset = targetOffset.clamp(0.0, maxOffset);
+    final offset = targetOffset.clamp(minOffset, maxOffset);
 
     if (animate) {
       await _scrollController.animateTo(
@@ -130,11 +131,14 @@ class _TimelinePageState extends State<TimelinePage> {
   }
 
   Future<void> _openCalendar() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
     final selectedDate = await showDatePicker(
       context: context,
       initialDate: widget.selectedDate,
       firstDate: DateTime.now().subtract(const Duration(days: 3650)),
-      lastDate: DateTime.now().add(const Duration(days: 3650)),
+      lastDate: today,
       helpText: 'Wybierz datę',
       cancelText: 'Anuluj',
       confirmText: 'Wybierz',
@@ -160,11 +164,7 @@ class _TimelinePageState extends State<TimelinePage> {
   }
 
   int _activityForDate(DateTime date) {
-    final normalized = DateTime(
-      date.year,
-      date.month,
-      date.day,
-    );
+    final normalized = DateTime(date.year, date.month, date.day);
 
     return widget.activityByDay[normalized] ?? 0;
   }
@@ -192,6 +192,61 @@ class _TimelinePageState extends State<TimelinePage> {
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  Widget _buildDayItem(BuildContext context, DateTime date) {
+    final isSelected = _isSameDay(date, widget.selectedDate);
+    final isToday = _isSameDay(date, DateTime.now());
+    final isFuture = date.isAfter(DateTime.now());
+    final activity = _activityForDate(date);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: isFuture ? null : () => widget.onDateChanged(date),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? Theme.of(context).colorScheme.primaryContainer
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+            border: isToday && !isSelected
+                ? Border.all(color: Theme.of(context).colorScheme.primary)
+                : null,
+          ),
+          child: Opacity(
+            opacity: isFuture ? 0.35 : 1.0, // wizualnie wyszarza przyszłe dni
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  _weekdayName(date),
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: isSelected
+                        ? Theme.of(context).colorScheme.onPrimaryContainer
+                        : null,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${date.day}',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: isSelected
+                        ? Theme.of(context).colorScheme.onPrimaryContainer
+                        : null,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                ActivityIndicator(activity: activity, selected: isSelected),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -234,91 +289,31 @@ class _TimelinePageState extends State<TimelinePage> {
                 ),
                 SizedBox(
                   height: 82,
-                  child: ListView.builder(
+                  child: CustomScrollView(
                     controller: _scrollController,
                     scrollDirection: Axis.horizontal,
-                    itemCount: _numberOfDays,
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    itemBuilder: (context, index) {
-                      final date = _dateForIndex(index);
-
-                      final isSelected = _isSameDay(date, widget.selectedDate);
-
-                      final isToday = _isSameDay(date, DateTime.now());
-                      final activity = _activityForDate(date);
-
-                      return SizedBox(
-                        width: _itemWidth,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 4,
-                            vertical: 8,
-                          ),
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(16),
-                            onTap: () {
-                              widget.onDateChanged(date);
-                            },
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 180),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? Theme.of(
-                                        context,
-                                      ).colorScheme.primaryContainer
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(16),
-                                border: isToday && !isSelected
-                                    ? Border.all(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.primary,
-                                      )
-                                    : null,
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    _weekdayName(date),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelMedium
-                                        ?.copyWith(
-                                          color: isSelected
-                                              ? Theme.of(
-                                                  context,
-                                                ).colorScheme.onPrimaryContainer
-                                              : null,
-                                        ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '${date.day}',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleLarge
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                          color: isSelected
-                                              ? Theme.of(
-                                                  context,
-                                                ).colorScheme.onPrimaryContainer
-                                              : null,
-                                        ),
-                                  ),
-                                  const SizedBox(height: 5),
-                                  ActivityIndicator(
-                                    activity: activity,
-                                    selected: isSelected,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
+                    center: _centerKey,
+                    slivers: [
+                      // Dni przed kotwicą (rosnąco w przeszłość).
+                      SliverFixedExtentList(
+                        itemExtent: _itemWidth,
+                        delegate: SliverChildBuilderDelegate((context, i) {
+                          final date = _anchorDate.subtract(
+                            Duration(days: i + 1),
+                          );
+                          return _buildDayItem(context, date);
+                        }, childCount: _pastDaysLimit),
+                      ),
+                      // Dni od kotwicy w przyszłość (włącznie z kotwicą).
+                      SliverFixedExtentList(
+                        key: _centerKey,
+                        itemExtent: _itemWidth,
+                        delegate: SliverChildBuilderDelegate((context, i) {
+                          final date = _dateForIndex(i);
+                          return _buildDayItem(context, date);
+                        }, childCount: _futureDaysLimit + 1),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -363,9 +358,7 @@ class ActivityIndicator extends StatelessWidget {
           shape: BoxShape.circle,
           border: Border.all(
             color: selected
-                ? colorScheme.onSecondary.withValues(
-                    alpha: 0.35,
-                  )
+                ? colorScheme.onSecondary.withValues(alpha: 0.35)
                 : colorScheme.outlineVariant,
           ),
         ),
@@ -380,12 +373,8 @@ class ActivityIndicator extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: selected
-              ? colorScheme.onPrimaryContainer.withValues(
-                  alpha: intensity,
-                )
-              : colorScheme.primary.withValues(
-                  alpha: intensity,
-                ),
+              ? colorScheme.onPrimaryContainer.withValues(alpha: intensity)
+              : colorScheme.primary.withValues(alpha: intensity),
         ),
       ),
     );
