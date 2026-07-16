@@ -52,7 +52,7 @@ defmodule Backend.MixProject do
       {:ash_state_machine, "~> 0.2"},
       {:oban_web, "~> 2.0"},
       {:ash_oban, "~> 0.8"},
-      {:ash_admin, "~> 1.0"},
+      {:ash_admin, "~> 1.1"},
       {:ash_authentication_phoenix, "~> 2.0"},
       {:ash_authentication, "~> 4.0"},
       {:ash_postgres, "~> 2.0"},

@@ -220,6 +220,7 @@ defmodule Backend.Accounts.User do
     end
 
     policy action([
+            :sign_in_with_password,
             :register_with_password,
           ]) do
       authorize_if always()

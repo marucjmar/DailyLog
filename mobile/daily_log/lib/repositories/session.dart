@@ -17,16 +17,12 @@ class SessionRepository extends ChangeNotifier {
   }
 
   Future<void> login({
-    required int userId,
-    required int id,
-    required String idToken,
-    required String refreshToken,
-    required String deviceToken,
-    required int userType,
+    required String userId,
+    required String id,
     required String accessToken,
     required String hostUrl,
   }) async {
-    SessionStorage.saveSession(userId: userId, id: id, idToken: idToken, refreshToken: refreshToken, deviceToken: deviceToken, userType: userType, accessToken: accessToken, hostUrl: hostUrl);
+    SessionStorage.saveSession(userId: userId, id: id, accessToken: accessToken, hostUrl: hostUrl);
     notifyListeners();
   }
 }

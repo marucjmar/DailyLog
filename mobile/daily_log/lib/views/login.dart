@@ -1,5 +1,9 @@
+import 'dart:convert';
+
+import 'package:daily_log/models/session.dart';
 import 'package:daily_log/repositories/session.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -10,7 +14,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final serverController = TextEditingController(
-    text: 'http://10.0.2.2:8080',
+    text: 'https://10.0.2.2:4000',
   );
 
   final emailController = TextEditingController();
@@ -70,20 +74,43 @@ class _LoginPageState extends State<LoginPage> {
       //   password: password,
       // );
 
-      await Future<void>.delayed(
-        const Duration(seconds: 1),
+      // await Future<void>.delayed(
+      //   const Duration(seconds: 1),
+      // );
+
+      final url = Uri.parse('${serverUri.toString()}/api/json/sessions/password');
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/vnd.api+json',
+        },
+        body: jsonEncode({
+          'data': {
+            'attributes': {
+              'email': email,
+              'password': password,
+            }
+          }
+        }),
       );
 
-      await SessionRepository.instance.login(
-        userId: 123,
-        id: 123,
-        idToken: '123',
-        refreshToken: '123',
-        deviceToken: '123',
-        userType: 1,
-        accessToken: '123',
-        hostUrl: "http://asdasd"
-      );
+      if (response.statusCode == 201) {
+        final json = jsonDecode(response.body);
+        print(json["data"]["attributes"]);
+        final Session session = Session.fromJson(json["data"]);
+
+        await SessionRepository.instance.login(
+          userId: session.userId,
+          id: session.id,
+          accessToken: session.accessToken,
+          hostUrl: serverUri.toString(),
+        );
+      } else {
+        print('Błąd: ${response.statusCode}');
+        print(response.body);
+      }
+
 
       // Nie trzeba używać Navigator.push().
       // ValueListenableBuilder automatycznie pokaże HomePage

@@ -50,7 +50,8 @@ defmodule Backend.Accounts.Session do
             {:ok,
              %__MODULE__{
                id: Ash.UUID.generate(),
-               access_token: user.__metadata__.token
+               access_token: user.__metadata__.token,
+               user_id: user.id
              }}
 
           {:error, error} ->
@@ -73,6 +74,12 @@ defmodule Backend.Accounts.Session do
       allow_nil? false
       public? true
       sensitive? true
+    end
+
+    attribute :user_id, :string do
+      allow_nil? false
+      public? true
+      sensitive? false
     end
   end
 end
