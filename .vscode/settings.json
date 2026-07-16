@@ -1,4 +1,4 @@
-{
+{   
     "deno.enable": true,
     "deno.suggest.imports.hosts": {
         "https://deno.land": true,
@@ -7,4 +7,13 @@
     },
     "typescript.preferences.importModuleSpecifier": "non-relative",
     "elixirLS.projectDir": "./web/backend",
+    "emeraldwalk.runonsave": {
+        "commands": [
+               {
+                   "match": "\\.arb$",
+                   "cmd": "cd ./mobile/daily_log && ./g_l10n.sh"
+               },
+        ]
+    },
+    "files.insertFinalNewline": true
 }

@@ -1,0 +1,37 @@
+{
+  "@@locale": "pl",
+
+  "authInvalidCredentials": "Nieprawidłowy adres e-mail lub hasło",
+  "authUnauthorized": "Nie masz uprawnień do wykonania tej operacji",
+
+  "networkError": "Nie udało się połączyć z serwerem",
+  "requestTimeout": "Serwer nie odpowiedział w wymaganym czasie",
+  "badCertificate": "Nie udało się zweryfikować certyfikatu serwera",
+  "requestCancelled": "Żądanie zostało anulowane",
+
+  "badRequest": "Żądanie jest nieprawidłowe",
+  "notFound": "Nie znaleziono żądanego zasobu",
+  "invalidServerResponse": "Serwer zwrócił nieprawidłową odpowiedź",
+
+  "serverError": "Błąd serwera ({statusCode})",
+  "@serverError": {
+    "placeholders": {
+      "statusCode": {
+        "type": "int"
+      }
+    }
+  },
+
+  "validationError": "Przesłane dane są nieprawidłowe",
+
+  "unknownError": "Wystąpił nieoczekiwany błąd",
+  
+  "loginView_Title": "Logowanie",
+  "loginView_submitButton": "Zaloguj",
+  "loginView_serverHostField": "Adres URL servera",
+  "loginView_emailField": "Adres Email",
+  "loginView_passwordField": "Hasło",
+
+  "loginView_validation_hostEmpty": "Podaj adres hosta",
+  "loginView_validation_hostInvalid": "Nieprawidłowy adres url"
+}
