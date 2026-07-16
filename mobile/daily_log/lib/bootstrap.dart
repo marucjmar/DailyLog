@@ -17,12 +17,8 @@ class AppBootstrap {
       sessionStorage: sessionStorage,
     );
 
-    final authController = AuthController(
-      repository: authRepository,
-    );
+    final authController = AuthController(repository: authRepository);
 
-    return AppDependencies(
-      authController: authController,
-    );
+    return AppDependencies(authController: authController);
   }
 }

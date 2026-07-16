@@ -5,9 +5,8 @@ part 'session_response.g.dart';
 
 @freezed
 abstract class SessionResponseDto with _$SessionResponseDto {
-  const factory SessionResponseDto({
-    required SessionDataDto data,
-  }) = _SessionResponseDto;
+  const factory SessionResponseDto({required SessionDataDto data}) =
+      _SessionResponseDto;
 
   factory SessionResponseDto.fromJson(Map<String, dynamic> json) =>
       _$SessionResponseDtoFromJson(json);

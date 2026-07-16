@@ -12,7 +12,8 @@ class AuthLocalizationsEn extends AuthLocalizations {
   String get authInvalidCredentials => 'Invalid email or password';
 
   @override
-  String get authUnauthorized => 'You are not authorized to perform this action';
+  String get authUnauthorized =>
+      'You are not authorized to perform this action';
 
   @override
   String get networkError => 'Could not connect to the server';

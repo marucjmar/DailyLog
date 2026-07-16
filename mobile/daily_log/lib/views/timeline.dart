@@ -47,7 +47,7 @@ class TimelinePage extends StatefulWidget {
   /// Dociąga liczby aktywności dla dni z zakresu [start, end] (włącznie).
   /// Wywoływane leniwie tylko dla dni, których nie ma jeszcze w cache.
   final Future<Map<DateTime, int>> Function(DateTime start, DateTime end)
-      loadActivityCounts;
+  loadActivityCounts;
 
   /// Opcjonalny wstępny zestaw danych (np. dla dnia dzisiejszego),
   /// żeby uniknąć migotania przy starcie.
@@ -144,8 +144,7 @@ class _TimelinePageState extends State<TimelinePage> {
     if (viewportWidth == 0) return null;
 
     final firstVisible = (position.pixels / _itemWidth).floor();
-    final lastVisible =
-        ((position.pixels + viewportWidth) / _itemWidth).ceil();
+    final lastVisible = ((position.pixels + viewportWidth) / _itemWidth).ceil();
 
     return (
       start: firstVisible - _prefetchBufferDays,
@@ -242,8 +241,9 @@ class _TimelinePageState extends State<TimelinePage> {
 
     final selectedDate = await showDatePicker(
       context: context,
-      initialDate:
-          widget.selectedDate.isAfter(today) ? today : widget.selectedDate,
+      initialDate: widget.selectedDate.isAfter(today)
+          ? today
+          : widget.selectedDate,
       firstDate: DateTime.now().subtract(const Duration(days: 3650)),
       lastDate: today,
       helpText: 'Wybierz datę',
@@ -269,8 +269,18 @@ class _TimelinePageState extends State<TimelinePage> {
 
   String _monthName(DateTime date) {
     const months = [
-      'stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca',
-      'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia',
+      'stycznia',
+      'lutego',
+      'marca',
+      'kwietnia',
+      'maja',
+      'czerwca',
+      'lipca',
+      'sierpnia',
+      'września',
+      'października',
+      'listopada',
+      'grudnia',
     ];
     return months[date.month - 1];
   }
@@ -308,20 +318,20 @@ class _TimelinePageState extends State<TimelinePage> {
                 Text(
                   _weekdayName(date),
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: isSelected
-                            ? Theme.of(context).colorScheme.onPrimaryContainer
-                            : null,
-                      ),
+                    color: isSelected
+                        ? Theme.of(context).colorScheme.onPrimaryContainer
+                        : null,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   '${date.day}',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: isSelected
-                            ? Theme.of(context).colorScheme.onPrimaryContainer
-                            : null,
-                      ),
+                    fontWeight: FontWeight.w600,
+                    color: isSelected
+                        ? Theme.of(context).colorScheme.onPrimaryContainer
+                        : null,
+                  ),
                 ),
                 const SizedBox(height: 5),
                 ActivityIndicator(
@@ -399,10 +409,8 @@ class _TimelinePageState extends State<TimelinePage> {
                           key: _centerKey,
                           itemExtent: _itemWidth,
                           delegate: SliverChildBuilderDelegate(
-                            (context, i) => _buildDayItem(
-                              context,
-                              _dateForIndex(i),
-                            ),
+                            (context, i) =>
+                                _buildDayItem(context, _dateForIndex(i)),
                             childCount: _futureDaysLimit + 1,
                           ),
                         ),
@@ -480,10 +488,11 @@ class _ActivityIndicatorState extends State<ActivityIndicator>
             height: 7,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: (widget.selected
-                      ? colorScheme.onPrimaryContainer
-                      : colorScheme.onSurfaceVariant)
-                  .withValues(alpha: alpha),
+              color:
+                  (widget.selected
+                          ? colorScheme.onPrimaryContainer
+                          : colorScheme.onSurfaceVariant)
+                      .withValues(alpha: alpha),
             ),
           );
         },
@@ -521,10 +530,11 @@ class _ActivityIndicatorState extends State<ActivityIndicator>
             height: 7,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: (widget.selected
-                      ? colorScheme.onPrimaryContainer
-                      : colorScheme.primary)
-                  .withValues(alpha: intensity * t),
+              color:
+                  (widget.selected
+                          ? colorScheme.onPrimaryContainer
+                          : colorScheme.primary)
+                      .withValues(alpha: intensity * t),
             ),
           ),
         );

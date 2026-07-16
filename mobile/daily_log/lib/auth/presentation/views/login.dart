@@ -192,17 +192,19 @@ class _LoginPageState extends State<LoginPage> {
                             border: const OutlineInputBorder(),
                           ),
                         ),
-                          const SizedBox(height: 16),
-                          Semantics(
-                            liveRegion: true,
-                            child: Text(
-                              error != null ? error.localizedMessage(context) : "",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.error,
-                              ),
+                        const SizedBox(height: 16),
+                        Semantics(
+                          liveRegion: true,
+                          child: Text(
+                            error != null
+                                ? error.localizedMessage(context)
+                                : "",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
                             ),
                           ),
+                        ),
                         const SizedBox(height: 24),
                         SizedBox(
                           height: 48,

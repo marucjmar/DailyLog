@@ -16,14 +16,11 @@ class SessionStorage {
   static Future<SessionStorage> create() async {
     await GetStorage.init(_storageId);
 
-    return SessionStorage._(
-      GetStorage(_storageId),
-    );
+    return SessionStorage._(GetStorage(_storageId));
   }
-  
-  SessionStorage({
-    GetStorage? storage,
-  }) : _storage = storage ?? GetStorage(_storageId);
+
+  SessionStorage({GetStorage? storage})
+    : _storage = storage ?? GetStorage(_storageId);
 
   static Future<void> initialize() {
     return GetStorage.init(_storageId);

@@ -20,8 +20,8 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl({
     required AuthApi authApi,
     required SessionStorage sessionStorage,
-  })  : _authApi = authApi,
-        _sessionStorage = sessionStorage;
+  }) : _authApi = authApi,
+       _sessionStorage = sessionStorage;
 
   bool get isLoggedIn => _sessionStorage.isLoggedIn;
 
@@ -40,9 +40,7 @@ class AuthRepositoryImpl implements AuthRepository {
       password: password,
     );
 
-    final session = response.toDomain(
-      hostUrl: serverUri.toString(),
-    );
+    final session = response.toDomain(hostUrl: serverUri.toString());
 
     await _sessionStorage.saveSession(session);
 

@@ -7,48 +7,32 @@ extension ApiExceptionLocalization on ApiException {
     final l10n = AuthLocalizations.of(context)!;
 
     return switch (this) {
-      InvalidCredentialsException() =>
-        l10n.authInvalidCredentials,
+      InvalidCredentialsException() => l10n.authInvalidCredentials,
 
-      UnauthorizedException() =>
-        l10n.authUnauthorized,
+      UnauthorizedException() => l10n.authUnauthorized,
 
-      NetworkException() =>
-        l10n.networkError,
+      NetworkException() => l10n.networkError,
 
-      RequestTimeoutException() =>
-        l10n.requestTimeout,
+      RequestTimeoutException() => l10n.requestTimeout,
 
-      BadCertificateException() =>
-        l10n.badCertificate,
+      BadCertificateException() => l10n.badCertificate,
 
-      RequestCancelledException() =>
-        l10n.requestCancelled,
+      RequestCancelledException() => l10n.requestCancelled,
 
-      BadRequestException() =>
-        l10n.badRequest,
+      BadRequestException() => l10n.badRequest,
 
-      NotFoundException() =>
-        l10n.notFound,
+      NotFoundException() => l10n.notFound,
 
-      ValidationException(
-        code: final code,
-        field: final field,
-      ) =>
-        _validationMessage(
-          l10n,
-          code: code,
-          field: field,
-        ),
+      ValidationException(code: final code, field: final field) =>
+        _validationMessage(l10n, code: code, field: field),
 
-      ServerException(statusCode: final statusCode) =>
-        l10n.serverError(statusCode),
+      ServerException(statusCode: final statusCode) => l10n.serverError(
+        statusCode,
+      ),
 
-      InvalidResponseException() =>
-        l10n.invalidServerResponse,
+      InvalidResponseException() => l10n.invalidServerResponse,
 
-      UnknownApiException() =>
-        l10n.unknownError,
+      UnknownApiException() => l10n.unknownError,
     };
   }
 }

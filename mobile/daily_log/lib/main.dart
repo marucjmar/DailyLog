@@ -20,10 +20,7 @@ void main() async {
 class MyApp extends StatelessWidget {
   final AppDependencies dependencies;
 
-  const MyApp({
-    super.key,
-    required this.dependencies,
-  });
+  const MyApp({super.key, required this.dependencies});
 
   // This widget is the root of your application.
   @override
@@ -37,10 +34,7 @@ class MyApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: [
-        Locale('en'),
-        Locale('pl'),
-      ],
+      supportedLocales: [Locale('en'), Locale('pl')],
       locale: const Locale('pl'),
       theme: ThemeData(
         // This is the theme of your application.

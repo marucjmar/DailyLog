@@ -6,18 +6,19 @@ class AuthApi {
   final Dio _dio;
 
   AuthApi({Dio? dio})
-      : _dio = dio ??
-            Dio(
-              BaseOptions(
-                connectTimeout: const Duration(seconds: 10),
-                sendTimeout: const Duration(seconds: 10),
-                receiveTimeout: const Duration(seconds: 15),
-                headers: const {
-                  'Content-Type': 'application/vnd.api+json',
-                  'Accept': 'application/vnd.api+json',
-                },
-              ),
-            );
+    : _dio =
+          dio ??
+          Dio(
+            BaseOptions(
+              connectTimeout: const Duration(seconds: 10),
+              sendTimeout: const Duration(seconds: 10),
+              receiveTimeout: const Duration(seconds: 15),
+              headers: const {
+                'Content-Type': 'application/vnd.api+json',
+                'Accept': 'application/vnd.api+json',
+              },
+            ),
+          );
 
   Future<SessionResponseDto> login({
     required Uri serverUri,
@@ -30,10 +31,7 @@ class AuthApi {
         data: {
           'data': {
             'type': 'session',
-            'attributes': {
-              'email': email,
-              'password': password,
-            },
+            'attributes': {'email': email, 'password': password},
           },
         },
       );
@@ -47,22 +45,16 @@ class AuthApi {
       try {
         return SessionResponseDto.fromJson(body);
       } on FormatException catch (error) {
-        throw ApiException.invalidResponse(
-          cause: error,
-        );
+        throw ApiException.invalidResponse(cause: error);
       } on TypeError catch (error) {
-        throw ApiException.invalidResponse(
-          cause: error,
-        );
+        throw ApiException.invalidResponse(cause: error);
       }
     } on ApiException {
       rethrow;
     } on DioException catch (error) {
       throw _mapDioException(error);
     } catch (error) {
-      throw ApiException.unknown(
-        cause: error,
-      );
+      throw ApiException.unknown(cause: error);
     }
   }
 
@@ -71,37 +63,31 @@ class AuthApi {
       DioExceptionType.connectionTimeout ||
       DioExceptionType.sendTimeout ||
       DioExceptionType.receiveTimeout ||
-      DioExceptionType.transformTimeout =>
-        ApiException.timeout(cause: error),
+      DioExceptionType.transformTimeout => ApiException.timeout(cause: error),
 
-      DioExceptionType.connectionError =>
-        ApiException.network(cause: error),
+      DioExceptionType.connectionError => ApiException.network(cause: error),
 
-      DioExceptionType.badCertificate =>
-        ApiException.badCertificate(cause: error),
+      DioExceptionType.badCertificate => ApiException.badCertificate(
+        cause: error,
+      ),
 
-      DioExceptionType.cancel =>
-        const ApiException.cancelled(),
+      DioExceptionType.cancel => const ApiException.cancelled(),
 
-      DioExceptionType.badResponse =>
-        _mapResponseError(error),
+      DioExceptionType.badResponse => _mapResponseError(error),
 
-      DioExceptionType.unknown =>
-        ApiException.network(cause: error),
+      DioExceptionType.unknown => ApiException.network(cause: error),
     };
   }
 
   ApiException _mapResponseError(DioException error) {
     final statusCode = error.response?.statusCode;
-    final parsedError = _extractJsonApiError(
-      error.response?.data,
-    );
+    final parsedError = _extractJsonApiError(error.response?.data);
 
     return switch (statusCode) {
       400 => ApiException.badRequest(
-          code: parsedError.code,
-          details: parsedError.detail,
-        ),
+        code: parsedError.code,
+        details: parsedError.detail,
+      ),
 
       // Specyficzne mapowanie dla endpointu logowania.
       401 || 403 => const ApiException.invalidCredentials(),
@@ -109,16 +95,16 @@ class AuthApi {
       404 => const ApiException.notFound(),
 
       422 => ApiException.validation(
-          code: parsedError.code,
-          field: parsedError.field,
-          details: parsedError.detail,
-        ),
+        code: parsedError.code,
+        field: parsedError.field,
+        details: parsedError.detail,
+      ),
 
       final int code => ApiException.server(
-          statusCode: code,
-          code: parsedError.code,
-          details: parsedError.detail,
-        ),
+        statusCode: code,
+        code: parsedError.code,
+        details: parsedError.detail,
+      ),
 
       null => ApiException.network(cause: error),
     };
@@ -126,9 +112,7 @@ class AuthApi {
 
   JsonApiErrorData _extractJsonApiError(Object? responseBody) {
     if (responseBody is! Map<String, dynamic>) {
-      return JsonApiErrorData(
-        detail: responseBody?.toString(),
-      );
+      return JsonApiErrorData(detail: responseBody?.toString());
     }
 
     final errors = responseBody['errors'];
@@ -174,9 +158,5 @@ class JsonApiErrorData {
   final String? detail;
   final String? field;
 
-  const JsonApiErrorData({
-    this.code,
-    this.detail,
-    this.field,
-  });
+  const JsonApiErrorData({this.code, this.detail, this.field});
 }

@@ -6,9 +6,7 @@ import 'package:flutter/foundation.dart';
 class AuthController extends ChangeNotifier {
   final AuthRepository _repository;
 
-  AuthController({
-    required this._repository,
-  });
+  AuthController({required this._repository});
 
   Session? _session;
   Session? get session => _session;
