@@ -23,10 +23,6 @@
   },
 
   "validationError": "Przesłane dane są nieprawidłowe",
-  "emailInvalid": "Podaj poprawny adres e-mail",
-  "emailRequired": "Podaj adres e-mail",
-  "passwordRequired": "Podaj hasło",
-  "passwordTooShort": "Hasło jest zbyt krótkie",
 
   "unknownError": "Wystąpił nieoczekiwany błąd",
   

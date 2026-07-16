@@ -44,18 +44,6 @@ class AuthLocalizationsPl extends AuthLocalizations {
   String get validationError => 'Przesłane dane są nieprawidłowe';
 
   @override
-  String get emailInvalid => 'Podaj poprawny adres e-mail';
-
-  @override
-  String get emailRequired => 'Podaj adres e-mail';
-
-  @override
-  String get passwordRequired => 'Podaj hasło';
-
-  @override
-  String get passwordTooShort => 'Hasło jest zbyt krótkie';
-
-  @override
   String get unknownError => 'Wystąpił nieoczekiwany błąd';
 
   @override

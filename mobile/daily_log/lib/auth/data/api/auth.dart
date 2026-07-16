@@ -84,17 +84,17 @@ class AuthApi {
     final parsedError = _extractJsonApiError(error.response?.data);
 
     return switch (statusCode) {
-      400 => ApiException.badRequest(
-        code: parsedError.code,
-        details: parsedError.detail,
-      ),
+      // 400 => ApiException.badRequest(
+      //   code: parsedError.code,
+      //   details: parsedError.detail,
+      // ),
 
       // Specyficzne mapowanie dla endpointu logowania.
       401 || 403 => const ApiException.invalidCredentials(),
 
       404 => const ApiException.notFound(),
 
-      422 => ApiException.validation(
+      400 || 422 => ApiException.validation(
         code: parsedError.code,
         field: parsedError.field,
         details: parsedError.detail,

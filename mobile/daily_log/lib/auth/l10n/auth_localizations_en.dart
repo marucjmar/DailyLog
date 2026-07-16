@@ -12,8 +12,7 @@ class AuthLocalizationsEn extends AuthLocalizations {
   String get authInvalidCredentials => 'Invalid email or password';
 
   @override
-  String get authUnauthorized =>
-      'You are not authorized to perform this action';
+  String get authUnauthorized => 'You are not authorized to perform this action';
 
   @override
   String get networkError => 'Could not connect to the server';
@@ -43,18 +42,6 @@ class AuthLocalizationsEn extends AuthLocalizations {
 
   @override
   String get validationError => 'The submitted data is invalid';
-
-  @override
-  String get emailInvalid => 'Enter a valid email address';
-
-  @override
-  String get emailRequired => 'Enter your email address';
-
-  @override
-  String get passwordRequired => 'Enter your password';
-
-  @override
-  String get passwordTooShort => 'The password is too short';
 
   @override
   String get unknownError => 'An unexpected error occurred';
