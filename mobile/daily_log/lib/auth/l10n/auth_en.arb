@@ -1,0 +1,41 @@
+{
+  "@@locale": "en",
+
+  "authInvalidCredentials": "Invalid email or password",
+  "authUnauthorized": "You are not authorized to perform this action",
+
+  "networkError": "Could not connect to the server",
+  "requestTimeout": "The server did not respond in time",
+  "badCertificate": "The server certificate could not be verified",
+  "requestCancelled": "The request was cancelled",
+
+  "badRequest": "The request is invalid",
+  "notFound": "The requested resource was not found",
+  "invalidServerResponse": "The server returned an invalid response",
+
+  "serverError": "Server error ({statusCode})",
+  "@serverError": {
+    "placeholders": {
+      "statusCode": {
+        "type": "int"
+      }
+    }
+  },
+
+  "validationError": "The submitted data is invalid",
+  "emailInvalid": "Enter a valid email address",
+  "emailRequired": "Enter your email address",
+  "passwordRequired": "Enter your password",
+  "passwordTooShort": "The password is too short",
+
+  "unknownError": "An unexpected error occurred",
+
+  "loginView_Title": "Sign In",
+  "loginView_formSubmit": "Login",
+  "loginView_serverHostField": "Server Host URL",
+  "loginView_emailField": "Eamil",
+  "loginView_passwordField": "Password",
+
+  "loginView_validation_hostEmpty": "Podaj adres hosta",
+  "loginView_validation_hostInvalid": "Nieprawidłowy adres url"
+}

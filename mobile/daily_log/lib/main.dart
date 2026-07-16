@@ -1,29 +1,47 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'package:daily_log/repositories/session.dart';
-import 'package:daily_log/stores/session.dart';
-import 'package:daily_log/views/login.dart';
+import 'package:daily_log/auth/l10n/auth_localizations.dart';
+import 'package:daily_log/auth/presentation/views/login.dart';
+import 'package:daily_log/bootstrap.dart';
+import 'package:daily_log/dependencies.dart';
 import 'package:daily_log/views/timeline.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:get_storage/get_storage.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'l10n/app_localizations.dart';
 
 void main() async {
-  await GetStorage.init();
-  await SessionRepository.instance.init();
+  final dependencies = await AppBootstrap.create();
 
-  runApp(const MyApp());
+  runApp(MyApp(dependencies: dependencies));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final AppDependencies dependencies;
+
+  const MyApp({
+    super.key,
+    required this.dependencies,
+  });
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        AuthLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        Locale('en'),
+        Locale('pl'),
+      ],
+      locale: const Locale('pl'),
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -43,11 +61,11 @@ class MyApp extends StatelessWidget {
         colorScheme: .fromSeed(seedColor: Colors.amber),
       ),
       home: AnimatedBuilder(
-        animation: SessionRepository.instance,
+        animation: dependencies.authController,
         builder: (context, child) {
-          return SessionRepository.instance.isLoggedIn
+          return dependencies.authController.isAuthenticated
               ? const MyHomePage()
-              : const LoginPage();
+              : LoginPage(authController: dependencies.authController);
         },
       ),
     );

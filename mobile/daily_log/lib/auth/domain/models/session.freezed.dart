@@ -12,33 +12,30 @@ part of 'session.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$Session {
 
- String get id;@JsonKey(name: 'attributes/access_token', readValue: nestedReader) String get accessToken;@JsonKey(name: 'attributes/user_id', readValue: nestedReader) String get userId;
+ String get id; String get userId; String get accessToken; String get hostUrl;
 /// Create a copy of Session
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
 $SessionCopyWith<Session> get copyWith => _$SessionCopyWithImpl<Session>(this as Session, _$identity);
 
-  /// Serializes this Session to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Session&&(identical(other.id, id) || other.id == id)&&(identical(other.accessToken, accessToken) || other.accessToken == accessToken)&&(identical(other.userId, userId) || other.userId == userId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Session&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.accessToken, accessToken) || other.accessToken == accessToken)&&(identical(other.hostUrl, hostUrl) || other.hostUrl == hostUrl));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
-int get hashCode => Object.hash(runtimeType,id,accessToken,userId);
+int get hashCode => Object.hash(runtimeType,id,userId,accessToken,hostUrl);
 
 @override
 String toString() {
-  return 'Session(id: $id, accessToken: $accessToken, userId: $userId)';
+  return 'Session(id: $id, userId: $userId, accessToken: $accessToken, hostUrl: $hostUrl)';
 }
 
 
@@ -49,7 +46,7 @@ abstract mixin class $SessionCopyWith<$Res>  {
   factory $SessionCopyWith(Session value, $Res Function(Session) _then) = _$SessionCopyWithImpl;
 @useResult
 $Res call({
- String id,@JsonKey(name: 'attributes/access_token', readValue: nestedReader) String accessToken,@JsonKey(name: 'attributes/user_id', readValue: nestedReader) String userId
+ String id, String userId, String accessToken, String hostUrl
 });
 
 
@@ -66,11 +63,12 @@ class _$SessionCopyWithImpl<$Res>
 
 /// Create a copy of Session
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? accessToken = null,Object? userId = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? accessToken = null,Object? hostUrl = null,}) {
   return _then(Session(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,accessToken: null == accessToken ? _self.accessToken : accessToken // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String,accessToken: null == accessToken ? _self.accessToken : accessToken // ignore: cast_nullable_to_non_nullable
+as String,hostUrl: null == hostUrl ? _self.hostUrl : hostUrl // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -156,10 +154,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'attributes/access_token', readValue: nestedReader)  String accessToken, @JsonKey(name: 'attributes/user_id', readValue: nestedReader)  String userId)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String userId,  String accessToken,  String hostUrl)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Session() when $default != null:
-return $default(_that.id,_that.accessToken,_that.userId);case _:
+return $default(_that.id,_that.userId,_that.accessToken,_that.hostUrl);case _:
   return orElse();
 
 }
@@ -177,10 +175,10 @@ return $default(_that.id,_that.accessToken,_that.userId);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'attributes/access_token', readValue: nestedReader)  String accessToken, @JsonKey(name: 'attributes/user_id', readValue: nestedReader)  String userId)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String userId,  String accessToken,  String hostUrl)  $default,) {final _that = this;
 switch (_that) {
 case _Session():
-return $default(_that.id,_that.accessToken,_that.userId);case _:
+return $default(_that.id,_that.userId,_that.accessToken,_that.hostUrl);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +195,10 @@ return $default(_that.id,_that.accessToken,_that.userId);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id, @JsonKey(name: 'attributes/access_token', readValue: nestedReader)  String accessToken, @JsonKey(name: 'attributes/user_id', readValue: nestedReader)  String userId)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String userId,  String accessToken,  String hostUrl)?  $default,) {final _that = this;
 switch (_that) {
 case _Session() when $default != null:
-return $default(_that.id,_that.accessToken,_that.userId);case _:
+return $default(_that.id,_that.userId,_that.accessToken,_that.hostUrl);case _:
   return null;
 
 }
@@ -209,15 +207,16 @@ return $default(_that.id,_that.accessToken,_that.userId);case _:
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _Session implements Session {
-  const _Session({required this.id, @JsonKey(name: 'attributes/access_token', readValue: nestedReader) required this.accessToken, @JsonKey(name: 'attributes/user_id', readValue: nestedReader) required this.userId});
-  factory _Session.fromJson(Map<String, dynamic> json) => _$SessionFromJson(json);
+  const _Session({required this.id, required this.userId, required this.accessToken, required this.hostUrl});
+  
 
 @override final  String id;
-@override@JsonKey(name: 'attributes/access_token', readValue: nestedReader) final  String accessToken;
-@override@JsonKey(name: 'attributes/user_id', readValue: nestedReader) final  String userId;
+@override final  String userId;
+@override final  String accessToken;
+@override final  String hostUrl;
 
 /// Create a copy of Session
 /// with the given fields replaced by the non-null parameter values.
@@ -225,23 +224,20 @@ class _Session implements Session {
 @pragma('vm:prefer-inline')
 _$SessionCopyWith<_Session> get copyWith => __$SessionCopyWithImpl<_Session>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$SessionToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Session&&(identical(other.id, id) || other.id == id)&&(identical(other.accessToken, accessToken) || other.accessToken == accessToken)&&(identical(other.userId, userId) || other.userId == userId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Session&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.accessToken, accessToken) || other.accessToken == accessToken)&&(identical(other.hostUrl, hostUrl) || other.hostUrl == hostUrl));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
-int get hashCode => Object.hash(runtimeType,id,accessToken,userId);
+int get hashCode => Object.hash(runtimeType,id,userId,accessToken,hostUrl);
 
 @override
 String toString() {
-  return 'Session(id: $id, accessToken: $accessToken, userId: $userId)';
+  return 'Session(id: $id, userId: $userId, accessToken: $accessToken, hostUrl: $hostUrl)';
 }
 
 
@@ -252,7 +248,7 @@ abstract mixin class _$SessionCopyWith<$Res> implements $SessionCopyWith<$Res> {
   factory _$SessionCopyWith(_Session value, $Res Function(_Session) _then) = __$SessionCopyWithImpl;
 @override @useResult
 $Res call({
- String id,@JsonKey(name: 'attributes/access_token', readValue: nestedReader) String accessToken,@JsonKey(name: 'attributes/user_id', readValue: nestedReader) String userId
+ String id, String userId, String accessToken, String hostUrl
 });
 
 
@@ -269,11 +265,12 @@ class __$SessionCopyWithImpl<$Res>
 
 /// Create a copy of Session
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? accessToken = null,Object? userId = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? accessToken = null,Object? hostUrl = null,}) {
   return _then(_Session(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,accessToken: null == accessToken ? _self.accessToken : accessToken // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as String,accessToken: null == accessToken ? _self.accessToken : accessToken // ignore: cast_nullable_to_non_nullable
+as String,hostUrl: null == hostUrl ? _self.hostUrl : hostUrl // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
