@@ -188,7 +188,7 @@ abstract class AuthLocalizations {
   /// No description provided for @loginView_emailField.
   ///
   /// In en, this message translates to:
-  /// **'Eamil'**
+  /// **'Email'**
   String get loginView_emailField;
 
   /// No description provided for @loginView_passwordField.

@@ -56,7 +56,7 @@ class AuthLocalizationsEn extends AuthLocalizations {
   String get loginView_serverHostField => 'Server Host URL';
 
   @override
-  String get loginView_emailField => 'Eamil';
+  String get loginView_emailField => 'Email';
 
   @override
   String get loginView_passwordField => 'Password';

@@ -29,7 +29,7 @@
   "loginView_Title": "Sign In",
   "loginView_formSubmit": "Login",
   "loginView_serverHostField": "Server Host URL",
-  "loginView_emailField": "Eamil",
+  "loginView_emailField": "Email",
   "loginView_passwordField": "Password",
 
   "loginView_validation_hostEmpty": "Podaj adres hosta",
