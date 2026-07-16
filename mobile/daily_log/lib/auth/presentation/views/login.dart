@@ -2,6 +2,7 @@ import 'package:daily_log/auth/l10n/auth_localizations.dart';
 import 'package:daily_log/auth/presentation/api_exception_localization.dart';
 import 'package:daily_log/auth/presentation/controllers/auth.dart';
 import 'package:flutter/material.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 
 class LoginPage extends StatefulWidget {
   final AuthController authController;
@@ -37,49 +38,6 @@ class _LoginPageState extends State<LoginPage> {
       email: emailController.text.trim(),
       password: passwordController.text,
     );
-  }
-
-  String? _validateServerHost(String? value, AuthLocalizations l10n) {
-    final host = value?.trim() ?? '';
-
-    if (host.isEmpty) {
-      return l10n.loginView_validation_hostEmpty;
-    }
-
-    final uri = Uri.tryParse(host);
-
-    if (uri == null ||
-        !uri.hasScheme ||
-        !uri.hasAuthority ||
-        !const {'http', 'https'}.contains(uri.scheme)) {
-      return l10n.loginView_validation_hostInvalid;
-    }
-
-    return null;
-  }
-
-  String? _validateEmail(String? value, AuthLocalizations l10n) {
-    final email = value?.trim() ?? '';
-
-    if (email.isEmpty) {
-      return l10n.emailRequired;
-    }
-
-    final isValid = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email);
-
-    if (!isValid) {
-      return l10n.emailInvalid;
-    }
-
-    return null;
-  }
-
-  String? _validatePassword(String? value, AuthLocalizations l10n) {
-    if (value == null || value.isEmpty) {
-      return l10n.passwordRequired;
-    }
-
-    return null;
   }
 
   @override
@@ -130,8 +88,10 @@ class _LoginPageState extends State<LoginPage> {
                           enabled: !isLoading,
                           autocorrect: false,
                           enableSuggestions: false,
-                          validator: (value) =>
-                              _validateServerHost(value, l10n),
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(),
+                            FormBuilderValidators.url(),
+                          ]),
                           decoration: InputDecoration(
                             labelText: l10n.loginView_serverHostField,
                             hintText: 'http://10.0.2.2:4000',
@@ -151,7 +111,10 @@ class _LoginPageState extends State<LoginPage> {
                             AutofillHints.email,
                             AutofillHints.username,
                           ],
-                          validator: (value) => _validateEmail(value, l10n),
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(),
+                            FormBuilderValidators.email(),
+                          ]),
                           decoration: InputDecoration(
                             labelText: l10n.loginView_emailField,
                             hintText: 'user@example.com',
@@ -168,7 +131,7 @@ class _LoginPageState extends State<LoginPage> {
                           autocorrect: false,
                           enableSuggestions: false,
                           autofillHints: const [AutofillHints.password],
-                          validator: (value) => _validatePassword(value, l10n),
+                          validator: FormBuilderValidators.required(),
                           onFieldSubmitted: (_) {
                             if (!isLoading) {
                               _login();

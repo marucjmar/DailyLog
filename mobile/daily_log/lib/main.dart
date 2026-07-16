@@ -9,6 +9,7 @@ import 'package:daily_log/views/timeline.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'l10n/app_localizations.dart';
 
 void main() async {
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
       localizationsDelegates: [
         AppLocalizations.delegate,
         AuthLocalizations.delegate,
+        FormBuilderLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
