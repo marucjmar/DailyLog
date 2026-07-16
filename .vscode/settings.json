@@ -14,5 +14,6 @@
                    "cmd": "cd ./mobile/daily_log && ./g_l10n.sh"
                },
         ]
-    }
+    },
+    "files.insertFinalNewline": true
 }
