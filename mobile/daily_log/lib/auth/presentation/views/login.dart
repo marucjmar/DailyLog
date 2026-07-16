@@ -18,7 +18,6 @@ class _LoginPageState extends State<LoginPage> {
   bool _obscurePassword = true;
 
   final serverController = TextEditingController(text: 'http://10.0.2.2:4000');
-
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
@@ -68,7 +67,7 @@ class _LoginPageState extends State<LoginPage> {
                   constraints: const BoxConstraints(maxWidth: 400),
                   child: Form(
                     key: _formKey,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    onChanged: () => widget.authController.clearError(),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -85,6 +84,7 @@ class _LoginPageState extends State<LoginPage> {
                           controller: serverController,
                           keyboardType: TextInputType.url,
                           textInputAction: TextInputAction.next,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           enabled: !isLoading,
                           autocorrect: false,
                           enableSuggestions: false,
@@ -104,6 +104,7 @@ class _LoginPageState extends State<LoginPage> {
                           controller: emailController,
                           keyboardType: TextInputType.emailAddress,
                           textInputAction: TextInputAction.next,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           enabled: !isLoading,
                           autocorrect: false,
                           enableSuggestions: false,
@@ -127,6 +128,7 @@ class _LoginPageState extends State<LoginPage> {
                           controller: passwordController,
                           obscureText: _obscurePassword,
                           textInputAction: TextInputAction.done,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           enabled: !isLoading,
                           autocorrect: false,
                           enableSuggestions: false,
